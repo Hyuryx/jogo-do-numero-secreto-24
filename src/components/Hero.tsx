@@ -1,10 +1,11 @@
 
 import React from 'react';
 import NeonButton from './NeonButton';
+import { Link as ScrollLink } from 'react-scroll';
 
 const Hero = () => {
   return (
-    <section className="relative min-h-screen flex items-center pt-16">
+    <section className="relative min-h-[80vh] flex items-center pt-16">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden -z-10">
         <div className="absolute top-1/4 -left-20 w-72 h-72 bg-neon-purple/30 rounded-full blur-[100px]"></div>
@@ -33,31 +34,35 @@ const Hero = () => {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
-              <span className="text-gradient">Explore</span> o Futuro <br/>
-              <span className="text-white">dos NFTs Espaciais</span>
+              <span className="text-gradient">JOGO DO</span> <br/>
+              <span className="text-white">NÚMERO SECRETO</span>
             </h1>
             <p className="text-gray-300 text-lg md:text-xl max-w-xl">
-              Entre na jornada interplanetária com nossa coleção exclusiva de NFTs. 
-              Adquira, comercialize e explore o universo JOGO.
+              Teste sua sorte e habilidade adivinhando o número secreto. 
+              Use dicas, compare seu desempenho no ranking e divirta-se neste desafio espacial.
             </p>
             <div className="flex flex-wrap gap-4 pt-4">
-              <NeonButton>Explorar Coleção</NeonButton>
-              <NeonButton variant="outline">Saiba mais</NeonButton>
+              <ScrollLink to="game-section" smooth={true} duration={500}>
+                <NeonButton>Jogar Agora</NeonButton>
+              </ScrollLink>
+              <NeonButton variant="outline" onClick={() => document.getElementById('howToPlay')?.scrollIntoView({behavior: 'smooth'})}>
+                Como Jogar
+              </NeonButton>
             </div>
             <div className="flex items-center gap-6 pt-6">
               <div>
-                <p className="text-3xl font-bold text-neon-blue">3.7K+</p>
-                <p className="text-gray-400">NFTs Criados</p>
+                <p className="text-3xl font-bold text-neon-blue">1-100</p>
+                <p className="text-gray-400">Faixa de Números</p>
               </div>
               <div className="h-10 w-px bg-gray-700"></div>
               <div>
-                <p className="text-3xl font-bold text-neon-purple">18K+</p>
-                <p className="text-gray-400">Usuários</p>
+                <p className="text-3xl font-bold text-neon-purple">∞</p>
+                <p className="text-gray-400">Tentativas</p>
               </div>
               <div className="h-10 w-px bg-gray-700"></div>
               <div>
-                <p className="text-3xl font-bold text-neon-pink">230+</p>
-                <p className="text-gray-400">Artistas</p>
+                <p className="text-3xl font-bold text-neon-pink">Top 5</p>
+                <p className="text-gray-400">Ranking</p>
               </div>
             </div>
           </div>
@@ -66,22 +71,29 @@ const Hero = () => {
             <div className="aspect-square rounded-2xl overflow-hidden border border-neon-purple/30 animate-float">
               <div className="absolute inset-0 bg-space-bg neon-border"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <img 
-                  src="https://cdn.midjourney.com/e531f614-7d83-4b4e-adca-3d287a8d46bf/0_3.webp" 
-                  alt="NFT Espacial" 
-                  className="object-cover" 
-                />
+                <div className="text-center p-8">
+                  <div className="text-8xl font-bold text-neon-blue mb-4">?</div>
+                  <div className="text-xl text-white">Qual é o número secreto?</div>
+                  <div className="flex justify-center mt-6">
+                    <div className="grid grid-cols-3 gap-2">
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                        <div 
+                          key={num} 
+                          className="w-10 h-10 flex items-center justify-center border border-neon-blue/30 rounded-md"
+                        >
+                          {num}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             <div className="absolute -bottom-6 -right-6 animate-float" style={{animationDelay: "1.5s"}}>
               <div className="w-36 h-36 rounded-lg overflow-hidden border border-neon-blue/30">
                 <div className="absolute inset-0 bg-space-bg neon-border"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <img 
-                    src="https://cdn.midjourney.com/fde6ce37-72e7-4bf7-a3cf-845937e231e5/0_1.webp" 
-                    alt="NFT Espacial Pequeno" 
-                    className="object-cover" 
-                  />
+                  <div className="text-5xl font-bold text-neon-purple">42?</div>
                 </div>
               </div>
             </div>
