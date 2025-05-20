@@ -7,7 +7,7 @@ import SecretNumberGame from '@/components/SecretNumberGame';
 import PlayerNameModal from '@/components/PlayerNameModal';
 import HowToPlay from '@/components/HowToPlay';
 import { Element } from 'react-scroll';
-import AudioPlayer from '@/components/AudioPlayer';
+import TicTacToeGame from '@/components/TicTacToeGame';
 
 const Index = () => {
   return (
@@ -24,10 +24,10 @@ const Index = () => {
             </div>
             
             <div className="container mx-auto px-4">
-              <div className="flex justify-center mb-6">
-                <AudioPlayer />
+              <div className="grid lg:grid-cols-2 gap-6">
+                <SecretNumberGame />
+                <TicTacToeGame />
               </div>
-              <SecretNumberGame />
             </div>
           </section>
         </Element>

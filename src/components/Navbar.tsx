@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import NeonButton from './NeonButton';
-import AudioPlayer from './AudioPlayer';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Sun, Moon } from 'lucide-react';
 
@@ -77,7 +76,6 @@ const Navbar = () => {
           >
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
-          <AudioPlayer />
         </div>
         
         {/* Mobile Menu Button */}
@@ -112,7 +110,6 @@ const Navbar = () => {
             <Link to="/creators" className={`${location.pathname === '/creators' ? 'text-neon-blue' : 'text-white light:text-space-dark'} hover:text-neon-blue transition-colors py-2`}>Criadores</Link>
             <Link to="/roadmap" className={`${location.pathname === '/roadmap' ? 'text-neon-blue' : 'text-white light:text-space-dark'} hover:text-neon-blue transition-colors py-2`}>Roadmap</Link>
             <Link to="/contact" className={`${location.pathname === '/contact' ? 'text-neon-blue' : 'text-white light:text-space-dark'} hover:text-neon-blue transition-colors py-2`}>Contato</Link>
-            <AudioPlayer />
           </div>
         </div>
       )}

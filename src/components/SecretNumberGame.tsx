@@ -20,18 +20,18 @@ interface GameState {
 const SecretNumberGame = () => {
   const { toast } = useToast();
   const [gameState, setGameState] = useState<GameState>({
-    secretNumber: Math.floor(Math.random() * 200) + 1,
+    secretNumber: Math.floor(Math.random() * 500) + 1,
     attempts: 0,
     guessHistory: [],
     gameOver: false,
-    maxNumber: 200,
+    maxNumber: 500,
     credits: 5,
     showCelebration: false,
     hintsUsed: 0,
-    lastHintRange: {min: 1, max: 200}
+    lastHintRange: {min: 1, max: 500}
   });
   const [currentGuess, setCurrentGuess] = useState<string>('');
-  const [message, setMessage] = useState<string>('Adivinhe o número entre 1 e 200');
+  const [message, setMessage] = useState<string>('Adivinhe o número entre 1 e 500');
   const [highScores, setHighScores] = useState<{name: string, attempts: number}[]>([
     { name: 'AI-X9', attempts: 4 },
     { name: 'CyberNeon', attempts: 5 },
@@ -109,17 +109,17 @@ const SecretNumberGame = () => {
 
   const resetGame = () => {
     setGameState({
-      secretNumber: Math.floor(Math.random() * 200) + 1,
+      secretNumber: Math.floor(Math.random() * 500) + 1,
       attempts: 0,
       guessHistory: [],
       gameOver: false,
-      maxNumber: 200,
+      maxNumber: 500,
       credits: gameState.credits,
       showCelebration: false,
       hintsUsed: 0,
-      lastHintRange: {min: 1, max: 200}
+      lastHintRange: {min: 1, max: 500}
     });
-    setMessage('Adivinhe o número entre 1 e 200');
+    setMessage('Adivinhe o número entre 1 e 500');
     setCurrentGuess('');
     toast({
       title: "Novo Jogo",
@@ -235,68 +235,66 @@ const SecretNumberGame = () => {
         </div>
       )}
       
-      <div className="grid lg:grid-cols-2 gap-8">
-        <div>
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold mb-2">
-              <span className="text-gradient">JOGO DO NÚMERO SECRETO</span>
-            </h2>
-            <p className="text-gray-300 light:text-gray-700">{message}</p>
-          </div>
-          
-          <div className="space-y-6">
-            <div className="flex gap-4">
-              <Input
-                type="number"
-                value={currentGuess}
-                onChange={(e) => setCurrentGuess(e.target.value)}
-                placeholder="Digite um número..."
-                className="bg-space-accent/50 dark:bg-space-accent/50 light:bg-white/80 text-white light:text-space-dark border-neon-blue/30"
-                disabled={gameState.gameOver}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' && !gameState.gameOver) {
-                    handleGuess();
-                  }
-                }}
-              />
-              <NeonButton onClick={handleGuess} disabled={gameState.gameOver}>
-                Adivinhar
-              </NeonButton>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 light:text-gray-600">Tentativas: 
-                  <span className="text-neon-blue font-bold"> {gameState.attempts}</span>
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-400 light:text-gray-600">Créditos: 
-                  <span className="text-neon-purple font-bold"> {gameState.credits}</span>
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex gap-4">
-              <NeonButton variant="secondary" onClick={useHint} disabled={gameState.gameOver || gameState.credits <= 0}>
-                Usar Dica (1 crédito)
-              </NeonButton>
-              <NeonButton variant="outline" onClick={buyCredits}>
-                Comprar Créditos
-              </NeonButton>
-            </div>
-            
-            {gameState.gameOver && (
-              <div className="mt-6">
-                <NeonButton onClick={resetGame} className="w-full">
-                  Jogar Novamente
-                </NeonButton>
-              </div>
-            )}
-          </div>
+      <div>
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold mb-2">
+            <span className="text-gradient">JOGO DO NÚMERO SECRETO</span>
+          </h2>
+          <p className="text-gray-300 light:text-gray-700">{message}</p>
         </div>
         
         <div className="space-y-6">
+          <div className="flex gap-4">
+            <Input
+              type="number"
+              value={currentGuess}
+              onChange={(e) => setCurrentGuess(e.target.value)}
+              placeholder="Digite um número..."
+              className="bg-space-accent/50 dark:bg-space-accent/50 light:bg-white/80 text-white light:text-space-dark border-neon-blue/30"
+              disabled={gameState.gameOver}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && !gameState.gameOver) {
+                  handleGuess();
+                }
+              }}
+            />
+            <NeonButton onClick={handleGuess} disabled={gameState.gameOver}>
+              Adivinhar
+            </NeonButton>
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-400 light:text-gray-600">Tentativas: 
+                <span className="text-neon-blue font-bold"> {gameState.attempts}</span>
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-400 light:text-gray-600">Créditos: 
+                <span className="text-neon-purple font-bold"> {gameState.credits}</span>
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex gap-4">
+            <NeonButton variant="secondary" onClick={useHint} disabled={gameState.gameOver || gameState.credits <= 0}>
+              Usar Dica (1 crédito)
+            </NeonButton>
+            <NeonButton variant="outline" onClick={buyCredits}>
+              Comprar Créditos
+            </NeonButton>
+          </div>
+          
+          {gameState.gameOver && (
+            <div className="mt-6">
+              <NeonButton onClick={resetGame} className="w-full">
+                Jogar Novamente
+              </NeonButton>
+            </div>
+          )}
+        </div>
+      
+        <div className="mt-6 space-y-6">
           <Card className="bg-space-darker/80 dark:bg-space-darker/80 light:bg-white/90 border-neon-purple/20">
             <CardHeader>
               <CardTitle className="text-xl text-neon-blue">Histórico de Tentativas</CardTitle>
