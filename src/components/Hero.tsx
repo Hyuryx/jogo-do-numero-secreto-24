@@ -54,7 +54,7 @@ const Hero = () => {
             </div>
             <div className="flex items-center gap-6 pt-6">
               <div>
-                <p className="text-3xl font-bold text-neon-blue">1-100</p>
+                <p className="text-3xl font-bold text-neon-blue">1-200</p>
                 <p className="text-gray-400 light:text-gray-600">Faixa de Números</p>
               </div>
               <div className="h-10 w-px bg-gray-700 light:bg-gray-300"></div>
@@ -84,7 +84,7 @@ const Hero = () => {
               <div className="w-36 h-36 rounded-lg overflow-hidden border border-neon-blue/30">
                 <div className="absolute inset-0 bg-space-bg dark:bg-space-bg light:bg-gradient-to-br light:from-blue-50 light:to-purple-50 neon-border"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-5xl font-bold text-neon-purple">42?</div>
+                  <div className="text-5xl font-bold text-neon-purple">?</div>
                 </div>
               </div>
             </div>

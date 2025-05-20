@@ -7,6 +7,7 @@ import SecretNumberGame from '@/components/SecretNumberGame';
 import PlayerNameModal from '@/components/PlayerNameModal';
 import HowToPlay from '@/components/HowToPlay';
 import { Element } from 'react-scroll';
+import AudioPlayer from '@/components/AudioPlayer';
 
 const Index = () => {
   return (
@@ -23,6 +24,9 @@ const Index = () => {
             </div>
             
             <div className="container mx-auto px-4">
+              <div className="flex justify-center mb-6">
+                <AudioPlayer />
+              </div>
               <SecretNumberGame />
             </div>
           </section>
