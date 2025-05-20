@@ -12,6 +12,7 @@ interface GameState {
   gameOver: boolean;
   maxNumber: number;
   credits: number;
+  showCelebration: boolean;
 }
 
 const SecretNumberGame = () => {
@@ -22,7 +23,8 @@ const SecretNumberGame = () => {
     guessHistory: [],
     gameOver: false,
     maxNumber: 100,
-    credits: 5
+    credits: 5,
+    showCelebration: false
   });
   const [currentGuess, setCurrentGuess] = useState<string>('');
   const [message, setMessage] = useState<string>('Adivinhe o número entre 1 e 100');
@@ -56,10 +58,12 @@ const SecretNumberGame = () => {
     const newAttempts = gameState.attempts + 1;
     let result = '';
     let newGameOver = false;
+    let showCelebration = false;
     
     if (guess === gameState.secretNumber) {
       result = 'Acertou! 🎉';
       newGameOver = true;
+      showCelebration = true;
       saveScore(newAttempts);
       toast({
         title: "Parabéns!",
@@ -78,7 +82,8 @@ const SecretNumberGame = () => {
       ...prev,
       attempts: newAttempts,
       guessHistory: [...prev.guessHistory, {guess, result}],
-      gameOver: newGameOver
+      gameOver: newGameOver,
+      showCelebration
     }));
     
     setCurrentGuess('');
@@ -91,7 +96,8 @@ const SecretNumberGame = () => {
       guessHistory: [],
       gameOver: false,
       maxNumber: 100,
-      credits: gameState.credits
+      credits: gameState.credits,
+      showCelebration: false
     });
     setMessage('Adivinhe o número entre 1 e 100');
     setCurrentGuess('');
@@ -161,14 +167,24 @@ const SecretNumberGame = () => {
   };
 
   return (
-    <div className="space-card p-6 md:p-8 backdrop-blur-lg">
+    <div className="space-card p-6 md:p-8 backdrop-blur-lg relative">
+      {gameState.showCelebration && (
+        <div className="celebration">
+          <div className="firework"></div>
+          <div className="celebration-text">
+            PARABÉNS!<br/>
+            Você acertou em {gameState.attempts} tentativas!
+          </div>
+        </div>
+      )}
+      
       <div className="grid lg:grid-cols-2 gap-8">
         <div>
           <div className="mb-8">
             <h2 className="text-3xl font-bold mb-2">
               <span className="text-gradient">JOGO DO NÚMERO SECRETO</span>
             </h2>
-            <p className="text-gray-300">{message}</p>
+            <p className="text-gray-300 light:text-gray-700">{message}</p>
           </div>
           
           <div className="space-y-6">
@@ -178,7 +194,7 @@ const SecretNumberGame = () => {
                 value={currentGuess}
                 onChange={(e) => setCurrentGuess(e.target.value)}
                 placeholder="Digite um número..."
-                className="bg-space-accent/50 text-white border-neon-blue/30"
+                className="bg-space-accent/50 dark:bg-space-accent/50 light:bg-white/80 text-white light:text-space-dark border-neon-blue/30"
                 disabled={gameState.gameOver}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter' && !gameState.gameOver) {
@@ -193,12 +209,12 @@ const SecretNumberGame = () => {
             
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-400">Tentativas: 
+                <p className="text-gray-400 light:text-gray-600">Tentativas: 
                   <span className="text-neon-blue font-bold"> {gameState.attempts}</span>
                 </p>
               </div>
               <div>
-                <p className="text-gray-400">Créditos: 
+                <p className="text-gray-400 light:text-gray-600">Créditos: 
                   <span className="text-neon-purple font-bold"> {gameState.credits}</span>
                 </p>
               </div>
@@ -224,19 +240,19 @@ const SecretNumberGame = () => {
         </div>
         
         <div className="space-y-6">
-          <Card className="bg-space-darker/80 border-neon-purple/20">
+          <Card className="bg-space-darker/80 dark:bg-space-darker/80 light:bg-white/90 border-neon-purple/20">
             <CardHeader>
               <CardTitle className="text-xl text-neon-blue">Histórico de Tentativas</CardTitle>
             </CardHeader>
             <CardContent>
               {gameState.guessHistory.length === 0 ? (
-                <p className="text-gray-400 text-center">Nenhuma tentativa ainda</p>
+                <p className="text-gray-400 light:text-gray-600 text-center">Nenhuma tentativa ainda</p>
               ) : (
                 <div className="space-y-2 max-h-40 overflow-y-auto">
                   {gameState.guessHistory.map((item, index) => (
                     <div key={index} className="flex items-center justify-between border-b border-neon-blue/10 pb-2">
-                      <span>#{index + 1}: {item.guess}</span>
-                      <span className={item.result === 'Acertou! 🎉' ? 'text-neon-blue' : 'text-gray-300'}>
+                      <span className="text-white light:text-space-dark">#{index + 1}: {item.guess}</span>
+                      <span className={item.result === 'Acertou! 🎉' ? 'text-neon-blue' : 'text-gray-300 light:text-gray-700'}>
                         {item.result}
                       </span>
                     </div>
@@ -246,7 +262,7 @@ const SecretNumberGame = () => {
             </CardContent>
           </Card>
           
-          <Card className="bg-space-darker/80 border-neon-purple/20">
+          <Card className="bg-space-darker/80 dark:bg-space-darker/80 light:bg-white/90 border-neon-purple/20">
             <CardHeader>
               <CardTitle className="text-xl text-neon-purple">Ranking de Jogadores</CardTitle>
             </CardHeader>
@@ -255,12 +271,12 @@ const SecretNumberGame = () => {
                 {highScores.map((score, index) => (
                   <div key={index} className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className={index === 0 ? "text-neon-blue" : "text-gray-300"}>
+                      <span className={index === 0 ? "text-neon-blue" : "text-gray-300 light:text-gray-700"}>
                         #{index + 1}
                       </span>
-                      <span>{score.name}</span>
+                      <span className="text-white light:text-space-dark">{score.name}</span>
                     </div>
-                    <span className="font-bold">{score.attempts} tentativas</span>
+                    <span className="font-bold text-white light:text-space-dark">{score.attempts} tentativas</span>
                   </div>
                 ))}
               </div>

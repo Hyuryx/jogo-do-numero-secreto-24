@@ -5,6 +5,7 @@ import Hero from '@/components/Hero';
 import Footer from '@/components/Footer';
 import SecretNumberGame from '@/components/SecretNumberGame';
 import PlayerNameModal from '@/components/PlayerNameModal';
+import HowToPlay from '@/components/HowToPlay';
 import { Element } from 'react-scroll';
 
 const Index = () => {
@@ -26,6 +27,7 @@ const Index = () => {
             </div>
           </section>
         </Element>
+        <HowToPlay />
       </main>
       <Footer />
     </div>

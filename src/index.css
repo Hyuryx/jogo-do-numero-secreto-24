@@ -34,16 +34,36 @@
     --ring: 189 100% 50%;
 
     --radius: 0.5rem;
+  }
 
-    /* Tema sidebar */
-    --sidebar-background: 240 27% 8%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 189 100% 50%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 267 80% 30%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 240 27% 18%;
-    --sidebar-ring: 189 100% 50%;
+  :root.light {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+
+    --card: 0 0% 98%;
+    --card-foreground: 240 10% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+
+    --primary: 189 100% 40%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 267 80% 40%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+
+    --accent: 267 80% 30%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 189 100% 40%;
   }
 }
 
@@ -54,6 +74,10 @@
 
   body {
     @apply bg-space-dark text-foreground overflow-x-hidden;
+  }
+
+  .light body {
+    @apply bg-[#f4f7fb] text-gray-800;
   }
 }
 
@@ -76,8 +100,88 @@
   .space-card {
     @apply bg-space-dark bg-opacity-80 backdrop-blur-sm rounded-lg p-6 border-[1px] border-purple-800/30;
   }
+
+  .light .space-card {
+    @apply bg-white/90 shadow-lg border-purple-300/30;
+  }
   
   .text-gradient {
     @apply bg-clip-text text-transparent bg-neon-glow;
+  }
+
+  /* Celebration animation */
+  @keyframes firework {
+    0% { transform: translate(var(--x), var(--initialY)); width: var(--initialSize); opacity: 1; }
+    50% { width: 0.5vmin; opacity: 1; }
+    100% { width: var(--finalSize); opacity: 0; }
+  }
+
+  .firework,
+  .firework::before,
+  .firework::after {
+    --initialSize: 0.5vmin;
+    --finalSize: 45vmin;
+    --particleSize: 0.2vmin;
+    --color1: yellow;
+    --color2: khaki;
+    --color3: white;
+    --color4: lime;
+    --color5: gold;
+    --color6: mediumseagreen;
+    --y: -30vmin;
+    --x: -50%;
+    --initialY: 60vmin;
+    content: "";
+    animation: firework 2s infinite;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, var(--y));
+    width: var(--initialSize);
+    aspect-ratio: 1;
+    background: 
+      radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 0% 0%,
+      radial-gradient(circle, var(--color2) var(--particleSize), #0000 0) 100% 0%,
+      radial-gradient(circle, var(--color3) var(--particleSize), #0000 0) 100% 100%,
+      radial-gradient(circle, var(--color4) var(--particleSize), #0000 0) 0% 100%,
+      radial-gradient(circle, var(--color5) var(--particleSize), #0000 0) 50% 0%,
+      radial-gradient(circle, var(--color6) var(--particleSize), #0000 0) 50% 100%,
+      radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 0% 50%,
+      radial-gradient(circle, var(--color2) var(--particleSize), #0000 0) 100% 50%;
+    background-size: var(--initialSize) var(--initialSize);
+    background-repeat: no-repeat;
+  }
+
+  .firework::before {
+    --x: -50%;
+    --y: -50%;
+    --initialY: -50%;
+    --initialSize: 0.5vmin;
+    --finalSize: 35vmin;
+    animation-delay: -0.25s;
+  }
+
+  .firework::after {
+    --x: -50%;
+    --y: -50%;
+    --initialY: -50%;
+    --initialSize: 0.5vmin;
+    --finalSize: 40vmin;
+    animation-delay: -0.4s;
+  }
+
+  .celebration {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    z-index: 10;
+  }
+
+  .celebration-text {
+    @apply text-4xl md:text-6xl font-bold text-white text-center z-20 animate-bounce;
+    text-shadow: 0 0 10px rgba(0, 243, 255, 0.8), 0 0 20px rgba(0, 243, 255, 0.5);
   }
 }
