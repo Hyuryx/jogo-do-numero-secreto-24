@@ -1,32 +1,35 @@
 
-import React from 'react';
-import { cn } from '@/lib/utils';
+import React, { ButtonHTMLAttributes } from 'react';
 
-interface NeonButtonProps {
+export interface NeonButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
+  variant?: 'primary' | 'secondary' | 'outline';
   className?: string;
-  variant?: 'default' | 'secondary' | 'outline';
-  onClick?: () => void;
+  disabled?: boolean;
 }
 
 const NeonButton: React.FC<NeonButtonProps> = ({ 
   children, 
-  className, 
-  variant = 'default',
-  onClick
+  variant = 'primary', 
+  className = '',
+  disabled = false,
+  ...props 
 }) => {
-  const baseStyles = "neon-button font-medium transition-all";
+  const baseClasses = "font-medium rounded-md transition-all duration-300 relative overflow-hidden";
   
-  const variantStyles = {
-    default: "border-neon-blue text-neon-blue hover:shadow-[0_0_15px_rgba(0,243,255,0.6)]",
-    secondary: "border-neon-purple text-neon-purple hover:shadow-[0_0_15px_rgba(155,48,255,0.6)]",
-    outline: "bg-transparent border-neon-blue/50 text-white hover:border-neon-blue hover:text-neon-blue"
+  const variantClasses = {
+    primary: "bg-space-accent hover:bg-space-light text-white py-3 px-6 border-[1px] border-neon-blue hover:shadow-[0_0_10px_2px_rgba(0,243,255,0.6)]",
+    secondary: "bg-neon-purple/20 hover:bg-neon-purple/40 text-white py-3 px-6 border-[1px] border-neon-purple hover:shadow-[0_0_10px_2px_rgba(149,76,233,0.6)]",
+    outline: "bg-transparent hover:bg-space-light/10 text-white py-3 px-6 border-[1px] border-neon-blue hover:border-neon-blue/80"
   };
+  
+  const disabledClasses = disabled ? "opacity-50 pointer-events-none" : "";
   
   return (
     <button 
-      className={cn(baseStyles, variantStyles[variant], className)}
-      onClick={onClick}
+      className={`${baseClasses} ${variantClasses[variant]} ${className} ${disabledClasses}`}
+      disabled={disabled}
+      {...props}
     >
       {children}
     </button>

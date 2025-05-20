@@ -8,6 +8,11 @@ import Index from "./pages/Index";
 import About from "./pages/About";
 import Marketplace from "./pages/Marketplace";
 import Roadmap from "./pages/Roadmap";
+import Contact from "./pages/Contact";
+import Collections from "./pages/Collections";
+import Creators from "./pages/Creators";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +28,11 @@ const App = () => (
           <Route path="/about" element={<About />} />
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/roadmap" element={<Roadmap />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/collections" element={<Collections />} />
+          <Route path="/creators" element={<Creators />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
