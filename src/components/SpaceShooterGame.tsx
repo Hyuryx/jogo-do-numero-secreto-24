@@ -147,7 +147,7 @@ const SpaceShooterGame = () => {
     setGameOver(false);
     setPaused(false);
     
-    lastEnemySpawn = Date.now();
+    setLastEnemySpawn(Date.now());
   };
   
   // Event Listeners para teclas
@@ -213,7 +213,7 @@ const SpaceShooterGame = () => {
       // Atualizar e desenhar inimigos
       if (timestamp - lastEnemySpawn > enemySpawnRate) {
         spawnEnemy();
-        lastEnemySpawn = timestamp;
+        setLastEnemySpawn(timestamp);
         
         // Diminuir tempo de spawn a cada inimigo (até um mínimo)
         setEnemySpawnRate(prev => Math.max(500, prev - 50));
@@ -707,7 +707,7 @@ const SpaceShooterGame = () => {
       const newLives = prev.lives - 1;
       
       if (newLives <= 0) {
-        gameOver();
+        handleGameOver();
         return {
           ...prev,
           lives: 0
@@ -735,7 +735,7 @@ const SpaceShooterGame = () => {
   };
   
   // Game Over
-  const gameOver = () => {
+  const handleGameOver = () => {
     setGameOver(true);
     setGameStarted(false);
     
