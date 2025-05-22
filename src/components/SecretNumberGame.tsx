@@ -15,7 +15,23 @@ interface GameState {
   showCelebration: boolean;
   hintsUsed: number;
   lastHintRange: {min: number, max: number};
+  attemptLimit: number;
 }
+
+// Contexto global para compartilhar tentativas entre jogos
+export const addSecretNumberAttempts = (amount: number) => {
+  const currentGameState = JSON.parse(localStorage.getItem('secretNumberGameState') || '{}');
+  
+  if (currentGameState.attemptLimit) {
+    const newAttemptLimit = Math.min(currentGameState.attemptLimit + amount, 50); // Limite máximo de 50 tentativas
+    currentGameState.attemptLimit = newAttemptLimit;
+    localStorage.setItem('secretNumberGameState', JSON.stringify(currentGameState));
+    
+    return newAttemptLimit;
+  }
+  
+  return 0;
+};
 
 const SecretNumberGame = () => {
   const { toast } = useToast();
@@ -28,7 +44,8 @@ const SecretNumberGame = () => {
     credits: 5,
     showCelebration: false,
     hintsUsed: 0,
-    lastHintRange: {min: 1, max: 500}
+    lastHintRange: {min: 1, max: 500},
+    attemptLimit: 20 // Limite inicial de tentativas
   });
   const [currentGuess, setCurrentGuess] = useState<string>('');
   const [message, setMessage] = useState<string>('Adivinhe o número entre 1 e 500');
@@ -54,13 +71,32 @@ const SecretNumberGame = () => {
     "Espetacular! Você está a um passo da vitória!"
   ];
 
-  // Load high scores from localStorage on component mount
+  // Load high scores and game state from localStorage on component mount
   useEffect(() => {
     const savedScores = localStorage.getItem('secretNumberHighScores');
     if (savedScores) {
       setHighScores(JSON.parse(savedScores));
     }
+    
+    // Carrega o estado do jogo, incluindo o limite de tentativas
+    const savedGameState = localStorage.getItem('secretNumberGameState');
+    if (savedGameState) {
+      const parsedState = JSON.parse(savedGameState);
+      setGameState(prevState => ({
+        ...prevState,
+        credits: parsedState.credits || prevState.credits,
+        attemptLimit: parsedState.attemptLimit || 20
+      }));
+    }
   }, []);
+  
+  // Salvar estado do jogo no localStorage quando mudar
+  useEffect(() => {
+    localStorage.setItem('secretNumberGameState', JSON.stringify({
+      credits: gameState.credits,
+      attemptLimit: gameState.attemptLimit
+    }));
+  }, [gameState.credits, gameState.attemptLimit]);
 
   const handleGuess = () => {
     const guess = parseInt(currentGuess);
@@ -68,6 +104,16 @@ const SecretNumberGame = () => {
       toast({
         title: "Número Inválido",
         description: `Digite um número entre 1 e ${gameState.maxNumber}`,
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Verifica se ainda tem tentativas
+    if (gameState.attempts >= gameState.attemptLimit) {
+      toast({
+        title: "Sem Tentativas",
+        description: "Suas tentativas acabaram! Ganhe mais jogando outros jogos ou comprando créditos.",
         variant: "destructive"
       });
       return;
@@ -105,20 +151,28 @@ const SecretNumberGame = () => {
     }));
     
     setCurrentGuess('');
+    
+    // Mostrar tentativas restantes
+    if (!newGameOver) {
+      const remaining = gameState.attemptLimit - newAttempts;
+      toast({
+        title: "Tentativas restantes",
+        description: `Você ainda tem ${remaining} tentativa${remaining !== 1 ? 's' : ''}.`,
+      });
+    }
   };
 
   const resetGame = () => {
-    setGameState({
+    setGameState(prev => ({
+      ...prev,
       secretNumber: Math.floor(Math.random() * 500) + 1,
       attempts: 0,
       guessHistory: [],
       gameOver: false,
-      maxNumber: 500,
-      credits: gameState.credits,
       showCelebration: false,
       hintsUsed: 0,
       lastHintRange: {min: 1, max: 500}
-    });
+    }));
     setMessage('Adivinhe o número entre 1 e 500');
     setCurrentGuess('');
     toast({
@@ -149,12 +203,13 @@ const SecretNumberGame = () => {
   const buyCredits = () => {
     setGameState(prev => ({
       ...prev,
-      credits: prev.credits + 3
+      credits: prev.credits + 3,
+      attemptLimit: prev.attemptLimit + 5 // Adicionar 5 tentativas ao comprar créditos
     }));
     
     toast({
-      title: "Créditos Adicionados",
-      description: "Você ganhou 3 créditos!",
+      title: "Tentativas Adicionadas",
+      description: "Você ganhou +5 tentativas e +3 créditos!",
     });
   };
 
@@ -223,6 +278,12 @@ const SecretNumberGame = () => {
     });
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' && !gameState.gameOver) {
+      handleGuess();
+    }
+  };
+
   return (
     <div className="space-card p-6 md:p-8 backdrop-blur-lg relative">
       {gameState.showCelebration && (
@@ -251,14 +312,13 @@ const SecretNumberGame = () => {
               onChange={(e) => setCurrentGuess(e.target.value)}
               placeholder="Digite um número..."
               className="bg-space-accent/50 dark:bg-space-accent/50 light:bg-white/80 text-white light:text-space-dark border-neon-blue/30"
-              disabled={gameState.gameOver}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' && !gameState.gameOver) {
-                  handleGuess();
-                }
-              }}
+              disabled={gameState.gameOver || gameState.attempts >= gameState.attemptLimit}
+              onKeyDown={handleKeyDown}
             />
-            <NeonButton onClick={handleGuess} disabled={gameState.gameOver}>
+            <NeonButton 
+              onClick={handleGuess} 
+              disabled={gameState.gameOver || gameState.attempts >= gameState.attemptLimit}
+            >
               Adivinhar
             </NeonButton>
           </div>
@@ -266,7 +326,7 @@ const SecretNumberGame = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-400 light:text-gray-600">Tentativas: 
-                <span className="text-neon-blue font-bold"> {gameState.attempts}</span>
+                <span className="text-neon-blue font-bold"> {gameState.attempts}/{gameState.attemptLimit}</span>
               </p>
             </div>
             <div>
@@ -277,15 +337,19 @@ const SecretNumberGame = () => {
           </div>
           
           <div className="flex gap-4">
-            <NeonButton variant="secondary" onClick={useHint} disabled={gameState.gameOver || gameState.credits <= 0}>
+            <NeonButton 
+              variant="secondary" 
+              onClick={useHint} 
+              disabled={gameState.gameOver || gameState.credits <= 0 || gameState.attempts >= gameState.attemptLimit}
+            >
               Usar Dica (1 crédito)
             </NeonButton>
             <NeonButton variant="outline" onClick={buyCredits}>
-              Comprar Créditos
+              Comprar Tentativas (+5)
             </NeonButton>
           </div>
           
-          {gameState.gameOver && (
+          {(gameState.gameOver || gameState.attempts >= gameState.attemptLimit) && (
             <div className="mt-6">
               <NeonButton onClick={resetGame} className="w-full">
                 Jogar Novamente

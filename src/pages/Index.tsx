@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import Footer from '@/components/Footer';
@@ -8,8 +8,35 @@ import PlayerNameModal from '@/components/PlayerNameModal';
 import HowToPlay from '@/components/HowToPlay';
 import { Element } from 'react-scroll';
 import TicTacToeGame from '@/components/TicTacToeGame';
+import QuizGame from '@/components/QuizGame';
+import HangmanGame from '@/components/HangmanGame';
+import MemoryGame from '@/components/MemoryGame';
+import SpaceShooterGame from '@/components/SpaceShooterGame';
+
+type GameType = 'secretNumber' | 'ticTacToe' | 'quiz' | 'hangman' | 'memory' | 'spaceShooter';
 
 const Index = () => {
+  const [selectedGame, setSelectedGame] = useState<GameType>('secretNumber');
+
+  const renderSelectedGame = () => {
+    switch (selectedGame) {
+      case 'secretNumber':
+        return <SecretNumberGame />;
+      case 'ticTacToe':
+        return <TicTacToeGame />;
+      case 'quiz':
+        return <QuizGame />;
+      case 'hangman':
+        return <HangmanGame />;
+      case 'memory':
+        return <MemoryGame />;
+      case 'spaceShooter':
+        return <SpaceShooterGame />;
+      default:
+        return <SecretNumberGame />;
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -24,9 +51,51 @@ const Index = () => {
             </div>
             
             <div className="container mx-auto px-4">
-              <div className="grid lg:grid-cols-2 gap-6">
-                <SecretNumberGame />
-                <TicTacToeGame />
+              <div className="space-card p-6 md:p-8 backdrop-blur-lg relative">
+                <div className="mb-6">
+                  <h2 className="text-3xl font-bold mb-4">
+                    <span className="text-gradient">ESCOLHA SEU JOGO</span>
+                  </h2>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <button 
+                      onClick={() => setSelectedGame('secretNumber')} 
+                      className={`p-3 rounded-lg border ${selectedGame === 'secretNumber' ? 'bg-neon-blue/20 border-neon-blue' : 'border-neon-purple/30 hover:bg-space-light/10'}`}
+                    >
+                      <span className="text-white font-medium">Número Secreto</span>
+                    </button>
+                    <button 
+                      onClick={() => setSelectedGame('ticTacToe')} 
+                      className={`p-3 rounded-lg border ${selectedGame === 'ticTacToe' ? 'bg-neon-blue/20 border-neon-blue' : 'border-neon-purple/30 hover:bg-space-light/10'}`}
+                    >
+                      <span className="text-white font-medium">Jogo da Velha</span>
+                    </button>
+                    <button 
+                      onClick={() => setSelectedGame('quiz')} 
+                      className={`p-3 rounded-lg border ${selectedGame === 'quiz' ? 'bg-neon-blue/20 border-neon-blue' : 'border-neon-purple/30 hover:bg-space-light/10'}`}
+                    >
+                      <span className="text-white font-medium">Quiz</span>
+                    </button>
+                    <button 
+                      onClick={() => setSelectedGame('hangman')} 
+                      className={`p-3 rounded-lg border ${selectedGame === 'hangman' ? 'bg-neon-blue/20 border-neon-blue' : 'border-neon-purple/30 hover:bg-space-light/10'}`}
+                    >
+                      <span className="text-white font-medium">Jogo da Forca</span>
+                    </button>
+                    <button 
+                      onClick={() => setSelectedGame('memory')} 
+                      className={`p-3 rounded-lg border ${selectedGame === 'memory' ? 'bg-neon-blue/20 border-neon-blue' : 'border-neon-purple/30 hover:bg-space-light/10'}`}
+                    >
+                      <span className="text-white font-medium">Jogo da Memória</span>
+                    </button>
+                    <button 
+                      onClick={() => setSelectedGame('spaceShooter')} 
+                      className={`p-3 rounded-lg border ${selectedGame === 'spaceShooter' ? 'bg-neon-blue/20 border-neon-blue' : 'border-neon-purple/30 hover:bg-space-light/10'}`}
+                    >
+                      <span className="text-white font-medium">Space Shooter</span>
+                    </button>
+                  </div>
+                </div>
+                {renderSelectedGame()}
               </div>
             </div>
           </section>

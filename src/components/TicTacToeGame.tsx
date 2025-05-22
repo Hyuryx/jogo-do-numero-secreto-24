@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import NeonButton from './NeonButton';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { addSecretNumberAttempts } from './SecretNumberGame';
 
 type Player = 'X' | 'O' | null;
 type BoardState = Player[];
@@ -11,7 +12,7 @@ const TicTacToeGame = () => {
   const { toast } = useToast();
   const [board, setBoard] = useState<BoardState>(Array(9).fill(null));
   const [isXNext, setIsXNext] = useState<boolean>(true);
-  const [winner, setWinner] = useState<Player>(null);
+  const [winner, setWinner] = useState<Player | 'draw' | null>(null);
   const [gameStats, setGameStats] = useState({
     xWins: 0,
     oWins: 0,
@@ -53,12 +54,20 @@ const TicTacToeGame = () => {
       const newStats = { ...gameStats };
       if (gameWinner === 'X') {
         newStats.xWins += 1;
+        
+        // Adicionar tentativas aleatórias ao jogo do número secreto (1-3)
+        rewardSecretNumberAttempts();
+        
         toast({
           title: "Jogador X venceu!",
           description: "Parabéns pela vitória!",
         });
       } else {
         newStats.oWins += 1;
+        
+        // Adicionar tentativas aleatórias ao jogo do número secreto (1-3)
+        rewardSecretNumberAttempts();
+        
         toast({
           title: "Jogador O venceu!",
           description: "Parabéns pela vitória!",
@@ -67,13 +76,49 @@ const TicTacToeGame = () => {
       saveStats(newStats);
     } else if (!newBoard.includes(null)) {
       // Jogo empatado
-      setWinner('draw' as any);
+      setWinner('draw');
       const newStats = { ...gameStats };
       newStats.draws += 1;
       saveStats(newStats);
+      
+      // Também dá recompensa no empate, mas com chances menores
+      const random = Math.random();
+      if (random < 0.5) { // 50% de chance de ganhar uma tentativa
+        const newAttempts = addSecretNumberAttempts(1);
+        if (newAttempts > 0) {
+          toast({
+            title: "Empate!",
+            description: "Você ganhou +1 tentativa para o Jogo do Número Secreto!",
+          });
+        }
+      } else {
+        toast({
+          title: "Empate!",
+          description: "O jogo terminou empatado.",
+        });
+      }
+    }
+  };
+  
+  // Função para recompensar o jogador com tentativas aleatórias
+  const rewardSecretNumberAttempts = () => {
+    // Determina quantas tentativas o jogador ganha (1-3)
+    const random = Math.random();
+    let attempts = 1; // 85% de chance = 1 tentativa
+    
+    if (random > 0.85 && random <= 0.95) {
+      attempts = 2; // 10% de chance = 2 tentativas
+    } else if (random > 0.95) {
+      attempts = 3; // 5% de chance = 3 tentativas
+    }
+    
+    // Adiciona as tentativas ao jogo do número secreto
+    const newAttempts = addSecretNumberAttempts(attempts);
+    
+    if (newAttempts > 0) {
       toast({
-        title: "Empate!",
-        description: "O jogo terminou empatado.",
+        title: "Recompensa!",
+        description: `Você ganhou +${attempts} tentativa${attempts > 1 ? 's' : ''} para o Jogo do Número Secreto!`,
       });
     }
   };
@@ -115,57 +160,46 @@ const TicTacToeGame = () => {
   };
 
   return (
-    <div className="space-card p-6 md:p-8 backdrop-blur-lg relative">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold mb-2">
-          <span className="text-gradient">JOGO DA VELHA</span>
-        </h2>
-        <p className="text-gray-300 light:text-gray-700">
-          Jogue contra um amigo neste clássico jogo!
+    <div className="space-y-6">
+      <div className="mb-4">
+        <p className="text-xl font-semibold text-white light:text-space-dark">
+          {getStatus()}
         </p>
       </div>
 
-      <div className="space-y-6">
-        <div className="mb-4">
-          <p className="text-xl font-semibold text-white light:text-space-dark">
-            {getStatus()}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-3 gap-2 mb-6">
-          {Array(9).fill(null).map((_, index) => (
-            <React.Fragment key={index}>
-              {renderSquare(index)}
-            </React.Fragment>
-          ))}
-        </div>
-
-        <NeonButton onClick={resetGame} className="w-full">
-          Reiniciar Jogo
-        </NeonButton>
-
-        <Card className="bg-space-darker/80 dark:bg-space-darker/80 light:bg-white/90 border-neon-purple/20 mt-6">
-          <CardHeader>
-            <CardTitle className="text-xl text-neon-blue">Estatísticas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <p className="text-neon-blue text-xl font-bold">{gameStats.xWins}</p>
-                <p className="text-gray-300 light:text-gray-700">Vitórias X</p>
-              </div>
-              <div>
-                <p className="text-neon-purple text-xl font-bold">{gameStats.draws}</p>
-                <p className="text-gray-300 light:text-gray-700">Empates</p>
-              </div>
-              <div>
-                <p className="text-neon-pink text-xl font-bold">{gameStats.oWins}</p>
-                <p className="text-gray-300 light:text-gray-700">Vitórias O</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-3 gap-2 mb-6">
+        {Array(9).fill(null).map((_, index) => (
+          <React.Fragment key={index}>
+            {renderSquare(index)}
+          </React.Fragment>
+        ))}
       </div>
+
+      <NeonButton onClick={resetGame} className="w-full">
+        Reiniciar Jogo
+      </NeonButton>
+
+      <Card className="bg-space-darker/80 dark:bg-space-darker/80 light:bg-white/90 border-neon-purple/20 mt-6">
+        <CardHeader>
+          <CardTitle className="text-xl text-neon-blue">Estatísticas</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div>
+              <p className="text-neon-blue text-xl font-bold">{gameStats.xWins}</p>
+              <p className="text-gray-300 light:text-gray-700">Vitórias X</p>
+            </div>
+            <div>
+              <p className="text-neon-purple text-xl font-bold">{gameStats.draws}</p>
+              <p className="text-gray-300 light:text-gray-700">Empates</p>
+            </div>
+            <div>
+              <p className="text-neon-pink text-xl font-bold">{gameStats.oWins}</p>
+              <p className="text-gray-300 light:text-gray-700">Vitórias O</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
