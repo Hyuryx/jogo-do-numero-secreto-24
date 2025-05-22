@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import NeonButton from './NeonButton';
@@ -684,7 +683,7 @@ const QuizShowGame = () => {
       {/* Help Options */}
       <div className="grid grid-cols-3 gap-3">
         <NeonButton 
-          variant={helpAvailable.university ? "outline" : "ghost"} 
+          variant={helpAvailable.university ? "outline" : "primary"} 
           onClick={useUniversityHelp}
           disabled={!helpAvailable.university || !isAnswerConfirmed}
           className="w-full"
@@ -692,7 +691,7 @@ const QuizShowGame = () => {
           Universitários {helpAvailable.university ? "✓" : "✗"}
         </NeonButton>
         <NeonButton 
-          variant={helpAvailable.fiftyFifty ? "outline" : "ghost"} 
+          variant={helpAvailable.fiftyFifty ? "outline" : "primary"} 
           onClick={useFiftyFifty}
           disabled={!helpAvailable.fiftyFifty || !isAnswerConfirmed}
           className="w-full"
@@ -700,7 +699,7 @@ const QuizShowGame = () => {
           50:50 {helpAvailable.fiftyFifty ? "✓" : "✗"}
         </NeonButton>
         <NeonButton 
-          variant={helpAvailable.skip ? "outline" : "ghost"} 
+          variant={helpAvailable.skip ? "outline" : "primary"} 
           onClick={useSkip}
           disabled={!helpAvailable.skip || !isAnswerConfirmed}
           className="w-full"
