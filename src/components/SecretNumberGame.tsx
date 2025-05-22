@@ -223,6 +223,16 @@ const SecretNumberGame = () => {
       return;
     }
 
+    // Verifica se ainda tem tentativas
+    if (gameState.attempts >= gameState.attemptLimit) {
+      toast({
+        title: "Sem Tentativas",
+        description: "Suas tentativas acabaram! Ganhe mais jogando outros jogos ou comprando créditos.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Calcula uma nova faixa menor baseada na quantidade de dicas já usadas
     const secretNum = gameState.secretNumber;
     const newHintsUsed = gameState.hintsUsed + 1;
@@ -262,9 +272,13 @@ const SecretNumberGame = () => {
     const randomIndex = Math.floor(Math.random() * hintMessages.length);
     const hintMessage = hintMessages[randomIndex];
     
+    // Usar uma dica também consome uma tentativa
+    const newAttempts = gameState.attempts + 1;
+    
     setGameState(prev => ({
       ...prev,
       credits: prev.credits - 1,
+      attempts: newAttempts,
       hintsUsed: newHintsUsed,
       lastHintRange: {min: newMin, max: newMax}
     }));
@@ -272,9 +286,12 @@ const SecretNumberGame = () => {
     // Atualiza a mensagem com a nova dica e o encorajamento
     setMessage(`Dica: O número está entre ${newMin} e ${newMax}. ${hintMessage}`);
     
+    // Mostrar tentativas restantes após usar a dica
+    const remaining = gameState.attemptLimit - newAttempts;
+    
     toast({
       title: "Dica Usada",
-      description: `Créditos restantes: ${gameState.credits - 1}`,
+      description: `Créditos restantes: ${gameState.credits - 1}. Você ainda tem ${remaining} tentativa${remaining !== 1 ? 's' : ''}.`,
     });
   };
 

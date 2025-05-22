@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import Footer from '@/components/Footer';
@@ -11,12 +11,23 @@ import TicTacToeGame from '@/components/TicTacToeGame';
 import QuizGame from '@/components/QuizGame';
 import HangmanGame from '@/components/HangmanGame';
 import MemoryGame from '@/components/MemoryGame';
-import SpaceShooterGame from '@/components/SpaceShooterGame';
+import QuizShowGame from '@/components/QuizShowGame';
 
-type GameType = 'secretNumber' | 'ticTacToe' | 'quiz' | 'hangman' | 'memory' | 'spaceShooter';
+type GameType = 'secretNumber' | 'ticTacToe' | 'quiz' | 'hangman' | 'memory' | 'quizShow';
 
 const Index = () => {
   const [selectedGame, setSelectedGame] = useState<GameType>('secretNumber');
+
+  // Salvar o jogo selecionado no localStorage e disparar um evento personalizado
+  useEffect(() => {
+    localStorage.setItem('selectedGame', selectedGame);
+    
+    // Criar e disparar evento personalizado para notificar outros componentes
+    const event = new CustomEvent('gameChanged', { 
+      detail: { game: selectedGame }
+    });
+    window.dispatchEvent(event);
+  }, [selectedGame]);
 
   const renderSelectedGame = () => {
     switch (selectedGame) {
@@ -30,8 +41,8 @@ const Index = () => {
         return <HangmanGame />;
       case 'memory':
         return <MemoryGame />;
-      case 'spaceShooter':
-        return <SpaceShooterGame />;
+      case 'quizShow':
+        return <QuizShowGame />;
       default:
         return <SecretNumberGame />;
     }
@@ -88,10 +99,10 @@ const Index = () => {
                       <span className="text-white font-medium">Jogo da Memória</span>
                     </button>
                     <button 
-                      onClick={() => setSelectedGame('spaceShooter')} 
-                      className={`p-3 rounded-lg border ${selectedGame === 'spaceShooter' ? 'bg-neon-blue/20 border-neon-blue' : 'border-neon-purple/30 hover:bg-space-light/10'}`}
+                      onClick={() => setSelectedGame('quizShow')} 
+                      className={`p-3 rounded-lg border ${selectedGame === 'quizShow' ? 'bg-neon-blue/20 border-neon-blue' : 'border-neon-purple/30 hover:bg-space-light/10'}`}
                     >
-                      <span className="text-white font-medium">Space Shooter</span>
+                      <span className="text-white font-medium">Quiz Show</span>
                     </button>
                   </div>
                 </div>

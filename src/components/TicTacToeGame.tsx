@@ -18,6 +18,7 @@ const TicTacToeGame = () => {
     oWins: 0,
     draws: 0,
   });
+  const [selectedLetters, setSelectedLetters] = useState<string[]>([]);
 
   // Carregar estatísticas do localStorage
   useEffect(() => {
@@ -41,9 +42,13 @@ const TicTacToeGame = () => {
 
     // Criar novo estado do tabuleiro
     const newBoard = [...board];
-    newBoard[index] = isXNext ? 'X' : 'O';
+    const currentPlayer = isXNext ? 'X' : 'O';
+    newBoard[index] = currentPlayer;
     setBoard(newBoard);
     setIsXNext(!isXNext);
+    
+    // Adicionar à lista de letras selecionadas
+    setSelectedLetters(prev => [...prev, currentPlayer]);
 
     // Verificar vencedor
     const gameWinner = calculateWinner(newBoard);
@@ -127,6 +132,7 @@ const TicTacToeGame = () => {
     setBoard(Array(9).fill(null));
     setIsXNext(true);
     setWinner(null);
+    setSelectedLetters([]);
     toast({
       title: "Novo Jogo",
       description: "O tabuleiro foi reiniciado!",
@@ -136,7 +142,7 @@ const TicTacToeGame = () => {
   const renderSquare = (index: number) => {
     return (
       <button
-        className={`aspect-square w-full flex items-center justify-center text-4xl font-bold rounded border border-neon-purple/30 
+        className={`aspect-square w-full flex items-center justify-center text-3xl font-bold rounded border border-neon-purple/30 
           ${!board[index] && !winner ? 'hover:bg-space-light/20' : ''} 
           ${board[index] === 'X' ? 'text-neon-blue' : 'text-neon-pink'}
           bg-space-accent/20`}
@@ -167,12 +173,32 @@ const TicTacToeGame = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 mb-6">
-        {Array(9).fill(null).map((_, index) => (
-          <React.Fragment key={index}>
-            {renderSquare(index)}
-          </React.Fragment>
-        ))}
+      <div className="flex justify-center mb-6">
+        <div className="grid grid-cols-3 gap-2 max-w-[260px]">
+          {Array(9).fill(null).map((_, index) => (
+            <React.Fragment key={index}>
+              {renderSquare(index)}
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+
+      {/* Letras Selecionadas */}
+      <div className="mb-4">
+        <div className="text-sm text-gray-300 light:text-gray-700 mb-1">Selecionadas:</div>
+        <div className="flex flex-wrap gap-2">
+          {selectedLetters.map((letter, index) => (
+            <span 
+              key={index} 
+              className={`px-2 py-1 rounded text-xs ${letter === 'X' ? 'bg-neon-blue/20 text-neon-blue' : 'bg-neon-pink/20 text-neon-pink'}`}
+            >
+              {letter}
+            </span>
+          ))}
+          {selectedLetters.length === 0 && (
+            <span className="text-gray-500">Nenhuma jogada ainda</span>
+          )}
+        </div>
       </div>
 
       <NeonButton onClick={resetGame} className="w-full">
