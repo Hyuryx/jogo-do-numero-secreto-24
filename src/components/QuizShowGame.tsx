@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import NeonButton from './NeonButton';
@@ -166,6 +167,7 @@ const QuizShowGame = () => {
   const [hasQuit, setHasQuit] = useState(false);
   const [finalPrize, setFinalPrize] = useState("R$ 0,00");
   const [timeLeft, setTimeLeft] = useState(30); // Tempo em segundos
+  const [showToastOnStart, setShowToastOnStart] = useState(false);
 
   // Ajudas disponíveis
   const [helpAvailable, setHelpAvailable] = useState({
@@ -194,6 +196,17 @@ const QuizShowGame = () => {
     
     return () => clearInterval(timer);
   }, [gameStarted, gameOver, hasQuit, isAnswerConfirmed, timeLeft]);
+
+  // Show welcome toast after component has mounted
+  useEffect(() => {
+    if (showToastOnStart && gameStarted) {
+      toast({
+        title: "Bem-vindo ao Quiz Show!",
+        description: "Responda corretamente para ganhar prêmios!",
+      });
+      setShowToastOnStart(false);
+    }
+  }, [showToastOnStart, gameStarted, toast]);
 
   // Shuffle questions on game start
   const shuffleQuestions = () => {
@@ -234,11 +247,7 @@ const QuizShowGame = () => {
     });
     setEliminatedOptions([]);
     setUniversityHelp([]);
-    
-    toast({
-      title: "Bem-vindo ao Quiz Show!",
-      description: "Responda corretamente para ganhar prêmios!",
-    });
+    setShowToastOnStart(true);
   };
 
   const handleTimeout = () => {
@@ -252,10 +261,10 @@ const QuizShowGame = () => {
     handleGameOver(false);
   };
 
-  // Modified to allow changing selection before confirmation
+  // Fixed option selection - allow selection until time runs out
   const handleOptionSelect = (optionIndex: number) => {
-    // Only allow selection if the answer hasn't been confirmed and game is still active
-    if (!isAnswerConfirmed && !gameOver) {
+    // Allow changing the selection as long as the game is active and answer isn't confirmed
+    if (!gameOver && !hasQuit) {
       setSelectedOption(optionIndex);
     }
   };
@@ -630,17 +639,13 @@ const QuizShowGame = () => {
               <div key={index} className="relative">
                 <button
                   onClick={() => handleOptionSelect(index)}
-                  disabled={isEliminated || isAnswerConfirmed}
+                  disabled={isEliminated}
                   className={`w-full text-left p-3 rounded-md transition-colors ${
                     isEliminated 
                     ? 'bg-gray-800/50 text-gray-600 cursor-not-allowed' 
-                    : isAnswerConfirmed 
-                      ? selectedOption === index 
-                        ? 'bg-neon-blue/40 border border-neon-blue' 
-                        : 'bg-space-light/10' 
-                      : selectedOption === index 
-                        ? 'bg-neon-blue/40 border border-neon-blue' 
-                        : 'hover:bg-space-light/30 bg-space-light/10'
+                    : selectedOption === index 
+                      ? 'bg-neon-blue/40 border border-neon-blue' 
+                      : 'hover:bg-space-light/30 bg-space-light/10'
                   }`}
                 >
                   <span className={`${isEliminated ? 'text-gray-600' : 'text-white light:text-space-dark'}`}>
@@ -667,7 +672,7 @@ const QuizShowGame = () => {
         <div className="md:col-span-2">
           <NeonButton 
             onClick={confirmAnswer} 
-            disabled={selectedOption === null || isAnswerConfirmed} 
+            disabled={selectedOption === null} 
             className="w-full"
           >
             Confirmar Resposta
@@ -677,7 +682,6 @@ const QuizShowGame = () => {
           <NeonButton 
             variant="secondary" 
             onClick={quit} 
-            disabled={!isAnswerConfirmed}
             className="w-full"
           >
             Parar
@@ -690,7 +694,7 @@ const QuizShowGame = () => {
         <NeonButton 
           variant={helpAvailable.university ? "outline" : "primary"} 
           onClick={useUniversityHelp}
-          disabled={!helpAvailable.university || !isAnswerConfirmed}
+          disabled={!helpAvailable.university}
           className="w-full"
         >
           Universitários {helpAvailable.university ? "✓" : "✗"}
@@ -698,7 +702,7 @@ const QuizShowGame = () => {
         <NeonButton 
           variant={helpAvailable.fiftyFifty ? "outline" : "primary"} 
           onClick={useFiftyFifty}
-          disabled={!helpAvailable.fiftyFifty || !isAnswerConfirmed}
+          disabled={!helpAvailable.fiftyFifty}
           className="w-full"
         >
           50:50 {helpAvailable.fiftyFifty ? "✓" : "✗"}
@@ -706,7 +710,7 @@ const QuizShowGame = () => {
         <NeonButton 
           variant={helpAvailable.skip ? "outline" : "primary"} 
           onClick={useSkip}
-          disabled={!helpAvailable.skip || !isAnswerConfirmed}
+          disabled={!helpAvailable.skip}
           className="w-full"
         >
           Pular {helpAvailable.skip ? "✓" : "✗"}
