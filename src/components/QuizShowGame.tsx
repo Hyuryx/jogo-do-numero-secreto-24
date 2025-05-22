@@ -252,17 +252,18 @@ const QuizShowGame = () => {
     handleGameOver(false);
   };
 
-  // Modificado para permitir selecionar opção mesmo que outra já esteja selecionada, enquanto o tempo estiver correndo
+  // Modified to allow changing selection before confirmation
   const handleOptionSelect = (optionIndex: number) => {
-    if (isAnswerConfirmed || gameOver) return;
-    
-    setSelectedOption(optionIndex);
+    // Only allow selection if the answer hasn't been confirmed and game is still active
+    if (!isAnswerConfirmed && !gameOver) {
+      setSelectedOption(optionIndex);
+    }
   };
   
   const confirmAnswer = () => {
     if (selectedOption === null) return;
     
-    setIsAnswerConfirmed(true); // Agora só travamos a resposta quando confirmar
+    setIsAnswerConfirmed(true); // Lock in the answer
     
     const isCorrect = selectedOption === gameQuestions[currentQuestionIndex].correctAnswer;
     
