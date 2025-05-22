@@ -4,6 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import NeonButton from './NeonButton';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { addSecretNumberAttempts } from './SecretNumberGame';
+import { Rocket, Star, Moon } from 'lucide-react';
 
 type Player = 'X' | 'O' | null;
 type BoardState = Player[];
@@ -139,10 +140,20 @@ const TicTacToeGame = () => {
     });
   };
 
+  // Renderiza um ícone espacial para X ou O
+  const renderPlayerIcon = (player: Player) => {
+    if (player === 'X') {
+      return <Rocket className="w-7 h-7 md:w-10 md:h-10 text-neon-blue" />;
+    } else if (player === 'O') {
+      return <Star className="w-7 h-7 md:w-10 md:h-10 text-neon-pink" />;
+    }
+    return null;
+  };
+
   const renderSquare = (index: number) => {
     return (
       <button
-        className={`aspect-square w-full flex items-center justify-center text-3xl font-bold rounded border border-neon-purple/30 
+        className={`aspect-square w-full flex items-center justify-center rounded border border-neon-purple/30 
           ${!board[index] && !winner ? 'hover:bg-space-light/20' : ''} 
           ${board[index] === 'X' ? 'text-neon-blue' : 'text-neon-pink'}
           bg-space-accent/20`}
@@ -150,7 +161,7 @@ const TicTacToeGame = () => {
         disabled={!!winner}
         aria-label={`Square ${index}`}
       >
-        {board[index]}
+        {renderPlayerIcon(board[index])}
       </button>
     );
   };
@@ -169,12 +180,13 @@ const TicTacToeGame = () => {
     <div className="space-y-6">
       <div className="mb-4">
         <p className="text-xl font-semibold text-white light:text-space-dark">
-          {getStatus()}
+          {getStatus()} {isXNext ? <Rocket className="inline-block w-5 h-5 text-neon-blue" /> : <Star className="inline-block w-5 h-5 text-neon-pink" />}
         </p>
       </div>
 
       <div className="flex justify-center mb-6">
-        <div className="grid grid-cols-3 gap-2 max-w-[260px]">
+        {/* Tabuleiro com tamanho ajustado para ser médio e responsivo */}
+        <div className="grid grid-cols-3 gap-2 w-full max-w-[320px] md:max-w-[380px]">
           {Array(9).fill(null).map((_, index) => (
             <React.Fragment key={index}>
               {renderSquare(index)}
@@ -192,6 +204,7 @@ const TicTacToeGame = () => {
               key={index} 
               className={`px-2 py-1 rounded text-xs ${letter === 'X' ? 'bg-neon-blue/20 text-neon-blue' : 'bg-neon-pink/20 text-neon-pink'}`}
             >
+              {letter === 'X' ? <Rocket className="inline-block w-3 h-3 mr-1" /> : <Star className="inline-block w-3 h-3 mr-1" />}
               {letter}
             </span>
           ))}
@@ -213,7 +226,7 @@ const TicTacToeGame = () => {
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <p className="text-neon-blue text-xl font-bold">{gameStats.xWins}</p>
-              <p className="text-gray-300 light:text-gray-700">Vitórias X</p>
+              <p className="text-gray-300 light:text-gray-700">Vitórias <Rocket className="inline-block w-4 h-4" /></p>
             </div>
             <div>
               <p className="text-neon-purple text-xl font-bold">{gameStats.draws}</p>
@@ -221,7 +234,7 @@ const TicTacToeGame = () => {
             </div>
             <div>
               <p className="text-neon-pink text-xl font-bold">{gameStats.oWins}</p>
-              <p className="text-gray-300 light:text-gray-700">Vitórias O</p>
+              <p className="text-gray-300 light:text-gray-700">Vitórias <Star className="inline-block w-4 h-4" /></p>
             </div>
           </div>
         </CardContent>

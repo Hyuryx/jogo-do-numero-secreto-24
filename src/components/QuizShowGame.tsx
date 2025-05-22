@@ -252,15 +252,17 @@ const QuizShowGame = () => {
     handleGameOver(false);
   };
 
+  // Modificado para permitir selecionar opção mesmo que outra já esteja selecionada, enquanto o tempo estiver correndo
   const handleOptionSelect = (optionIndex: number) => {
-    if (selectedOption !== null || !isAnswerConfirmed || gameOver) return;
+    if (isAnswerConfirmed || gameOver) return;
     
     setSelectedOption(optionIndex);
-    setIsAnswerConfirmed(false);
   };
   
   const confirmAnswer = () => {
     if (selectedOption === null) return;
+    
+    setIsAnswerConfirmed(true); // Agora só travamos a resposta quando confirmar
     
     const isCorrect = selectedOption === gameQuestions[currentQuestionIndex].correctAnswer;
     
@@ -283,7 +285,7 @@ const QuizShowGame = () => {
         setTimeout(() => {
           setCurrentQuestionIndex(prev => prev + 1);
           setSelectedOption(null);
-          setIsAnswerConfirmed(true);
+          setIsAnswerConfirmed(false); // Reseta para permitir selecionar na próxima pergunta
           setTimeLeft(30);
           setEliminatedOptions([]);
           setUniversityHelp([]);
@@ -627,15 +629,17 @@ const QuizShowGame = () => {
               <div key={index} className="relative">
                 <button
                   onClick={() => handleOptionSelect(index)}
-                  disabled={isEliminated || selectedOption !== null || !isAnswerConfirmed}
+                  disabled={isEliminated || isAnswerConfirmed}
                   className={`w-full text-left p-3 rounded-md transition-colors ${
                     isEliminated 
                     ? 'bg-gray-800/50 text-gray-600 cursor-not-allowed' 
-                    : selectedOption === null 
-                      ? 'hover:bg-space-light/30 bg-space-light/10' 
+                    : isAnswerConfirmed 
+                      ? selectedOption === index 
+                        ? 'bg-neon-blue/40 border border-neon-blue' 
+                        : 'bg-space-light/10' 
                       : selectedOption === index 
                         ? 'bg-neon-blue/40 border border-neon-blue' 
-                        : 'bg-space-light/10'
+                        : 'hover:bg-space-light/30 bg-space-light/10'
                   }`}
                 >
                   <span className={`${isEliminated ? 'text-gray-600' : 'text-white light:text-space-dark'}`}>
