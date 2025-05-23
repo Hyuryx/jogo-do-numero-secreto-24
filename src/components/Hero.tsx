@@ -1,4 +1,3 @@
-
 import React from 'react';
 import NeonButton from './NeonButton';
 import { Link as ScrollLink } from 'react-scroll';
@@ -54,7 +53,7 @@ const Hero = () => {
             </div>
             <div className="flex items-center gap-6 pt-6">
               <div>
-                <p className="text-3xl font-bold text-neon-blue">1-500</p>
+                <p className="text-3xl font-bold text-neon-blue">1-2000</p>
                 <p className="text-gray-400 light:text-gray-600">Faixa de Números</p>
               </div>
               <div className="h-10 w-px bg-gray-700 light:bg-gray-300"></div>

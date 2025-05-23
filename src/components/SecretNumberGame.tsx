@@ -208,7 +208,7 @@ const SecretNumberGame = () => {
     
     toast({
       title: "Tentativas Adicionadas",
-      description: "Você ganhou +5 tentativas e +3 créditos!",
+      description: "Você ganhou +5 tentativas!",
     });
   };
 

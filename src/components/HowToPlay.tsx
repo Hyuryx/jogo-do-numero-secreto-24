@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLocation } from 'react-router-dom';
@@ -8,7 +7,7 @@ const gameInstructions = {
     {
       id: 1,
       title: "Entenda o Jogo",
-      description: "O computador escolhe aleatoriamente um número entre 1 e 100. Seu objetivo é adivinhar esse número com o menor número de tentativas possível.",
+      description: "O computador escolhe aleatoriamente um número entre 1 e 2000. Seu objetivo é adivinhar esse número com o menor número de tentativas possível.",
       icon: "🎮"
     },
     {

@@ -4,7 +4,6 @@ import { useToast } from '@/hooks/use-toast';
 import NeonButton from '../NeonButton';
 import QuizQuestion from './QuizQuestion';
 import QuizResult from './QuizResult';
-import QuizStats from './QuizStats';
 import QuizTimer from './QuizTimer';
 import { Question, QuizGameStats } from './types';
 import { getRandomQuestions } from './utils';
@@ -43,17 +42,17 @@ const QuizGame = () => {
   useEffect(() => {
     let timerId: ReturnType<typeof setInterval>;
     
-    if (isTimerActive && timeLeft > 0 && !showResult) {
+    if (isTimerActive && timeLeft > 0 && !showResult && quizQuestions.length > 0) {
       timerId = setInterval(() => {
         setTimeLeft(prev => prev - 1);
       }, 1000);
-    } else if (timeLeft === 0 && !showResult) {
+    } else if (timeLeft === 0 && !showResult && quizQuestions.length > 0) {
       // Tempo acabou, avança para próxima questão
       handleTimeout();
     }
     
     return () => clearInterval(timerId);
-  }, [timeLeft, isTimerActive, showResult]);
+  }, [timeLeft, isTimerActive, showResult, quizQuestions.length]);
 
   const handleTimeout = () => {
     toast({
@@ -66,7 +65,7 @@ const QuizGame = () => {
   };
 
   const handleOptionSelect = (optionIndex: number) => {
-    if (selectedOption !== null) return; // Evita múltiplas seleções
+    if (selectedOption !== null || quizQuestions.length === 0) return; // Evita múltiplas seleções
     
     setSelectedOption(optionIndex);
     setIsTimerActive(false); // Para o timer
