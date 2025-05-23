@@ -313,8 +313,8 @@ const SudokuGame = () => {
           </div>
         ))}
         
-        {/* Estilo para as caixas */}
-        <style jsx>{`
+        <style>
+          {`
           .sudoku-grid {
             display: grid;
             grid-template-rows: repeat(9, 1fr);
@@ -351,7 +351,8 @@ const SudokuGame = () => {
           .even-box {
             background-color: rgba(65, 65, 122, 0.2);
           }
-        `}</style>
+          `}
+        </style>
       </div>
     );
   };
@@ -413,13 +414,13 @@ const SudokuGame = () => {
       </div>
 
       <div className="flex gap-2 mt-2">
-        <NeonButton onClick={() => {setDifficulty('easy'); newGame();}} variant={difficulty === 'easy' ? 'default' : 'outline'} className="flex-1">
+        <NeonButton onClick={() => {setDifficulty('easy'); newGame();}} variant={difficulty === 'easy' ? 'primary' : 'outline'} className="flex-1">
           Fácil
         </NeonButton>
-        <NeonButton onClick={() => {setDifficulty('medium'); newGame();}} variant={difficulty === 'medium' ? 'default' : 'outline'} className="flex-1">
+        <NeonButton onClick={() => {setDifficulty('medium'); newGame();}} variant={difficulty === 'medium' ? 'primary' : 'outline'} className="flex-1">
           Médio
         </NeonButton>
-        <NeonButton onClick={() => {setDifficulty('hard'); newGame();}} variant={difficulty === 'hard' ? 'default' : 'outline'} className="flex-1">
+        <NeonButton onClick={() => {setDifficulty('hard'); newGame();}} variant={difficulty === 'hard' ? 'primary' : 'outline'} className="flex-1">
           Difícil
         </NeonButton>
       </div>

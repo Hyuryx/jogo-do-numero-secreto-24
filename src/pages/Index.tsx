@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -87,7 +86,7 @@ const Index = () => {
                     </h2>
                     
                     <Link to="/games">
-                      <NeonButton variant="outline" size="sm" className="flex items-center gap-2">
+                      <NeonButton variant="outline" className="flex items-center gap-2">
                         Ver todos os jogos <ArrowRight className="w-4 h-4" />
                       </NeonButton>
                     </Link>

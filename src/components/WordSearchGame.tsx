@@ -510,8 +510,8 @@ const WordSearchGame = () => {
           </div>
         ))}
         
-        {/* Estilo para a grade */}
-        <style jsx>{`
+        <style>
+          {`
           .word-search-grid {
             display: grid;
             grid-template-rows: repeat(${grid.length}, 1fr);
@@ -536,7 +536,8 @@ const WordSearchGame = () => {
             font-weight: bold;
             background-color: rgba(65, 65, 122, 0.2);
           }
-        `}</style>
+          `}
+        </style>
       </div>
     );
   };
@@ -592,13 +593,13 @@ const WordSearchGame = () => {
       </div>
 
       <div className="flex flex-wrap gap-2 mt-2">
-        <NeonButton onClick={() => {setDifficulty('easy')}} variant={difficulty === 'easy' ? 'default' : 'outline'} className="flex-1">
+        <NeonButton onClick={() => {setDifficulty('easy')}} variant={difficulty === 'easy' ? 'primary' : 'outline'} className="flex-1">
           Fácil
         </NeonButton>
-        <NeonButton onClick={() => {setDifficulty('medium')}} variant={difficulty === 'medium' ? 'default' : 'outline'} className="flex-1">
+        <NeonButton onClick={() => {setDifficulty('medium')}} variant={difficulty === 'medium' ? 'primary' : 'outline'} className="flex-1">
           Médio
         </NeonButton>
-        <NeonButton onClick={() => {setDifficulty('hard')}} variant={difficulty === 'hard' ? 'default' : 'outline'} className="flex-1">
+        <NeonButton onClick={() => {setDifficulty('hard')}} variant={difficulty === 'hard' ? 'primary' : 'outline'} className="flex-1">
           Difícil
         </NeonButton>
       </div>
