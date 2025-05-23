@@ -10,6 +10,8 @@ import GameStatsDisplay from './tic-tac-toe/GameStats';
 import SelectedLetters from './tic-tac-toe/SelectedLetters';
 import GameModeSelector from './tic-tac-toe/GameModeSelector';
 import { addSecretNumberAttempts } from './SecretNumberGame';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
 
 const TicTacToeGame = () => {
   const { toast } = useToast();
@@ -23,6 +25,11 @@ const TicTacToeGame = () => {
   });
   const [selectedLetters, setSelectedLetters] = useState<string[]>([]);
   const [gameMode, setGameMode] = useState<GameMode>('player');
+  const [playerNames, setPlayerNames] = useState({
+    x: localStorage.getItem('ticTacToePlayerX') || 'Jogador X',
+    o: localStorage.getItem('ticTacToePlayerO') || 'Jogador O'
+  });
+  const [editingNames, setEditingNames] = useState(false);
 
   // Carregar estatísticas do localStorage
   useEffect(() => {
@@ -37,12 +44,8 @@ const TicTacToeGame = () => {
     if (gameMode === 'ai' && !isXNext && !winner) {
       // Pequeno atraso para simular "pensamento" do computador
       const timerId = setTimeout(() => {
-        const availableSquares = board
-          .map((square, index) => square === null ? index : -1)
-          .filter(index => index !== -1);
-          
-        if (availableSquares.length > 0) {
-          const bestMove = findBestMove([...board]);
+        const bestMove = findBestMove([...board]);
+        if (bestMove >= 0) {
           handleClick(bestMove);
         }
       }, 700);
@@ -115,7 +118,7 @@ const TicTacToeGame = () => {
         rewardSecretNumberAttempts();
         
         toast({
-          title: "Jogador X venceu!",
+          title: `${playerNames.x} venceu!`,
           description: "Parabéns pela vitória!",
         });
       } else {
@@ -127,7 +130,7 @@ const TicTacToeGame = () => {
         }
         
         toast({
-          title: gameMode === 'ai' ? "Computador venceu!" : "Jogador O venceu!",
+          title: gameMode === 'ai' ? "Computador venceu!" : `${playerNames.o} venceu!`,
           description: gameMode === 'ai' ? "Tente novamente!" : "Parabéns pela vitória!",
         });
       }
@@ -176,18 +179,23 @@ const TicTacToeGame = () => {
       if (gameMode === 'ai' && winner === 'O') {
         return 'Computador venceu!';
       }
-      return `Vencedor: ${winner}`;
+      return `Vencedor: ${winner === 'X' ? playerNames.x : playerNames.o}`;
     } else {
       if (gameMode === 'ai' && !isXNext) {
         return 'Turno do Computador';
       }
-      return `Próximo jogador: ${isXNext ? 'X' : 'O'}`;
+      return `Próximo jogador: ${isXNext ? playerNames.x : (gameMode === 'ai' ? 'Computador' : playerNames.o)}`;
     }
   };
 
   const handleGameModeChange = (mode: GameMode) => {
     setGameMode(mode);
     resetGame();
+  };
+
+  const handleNameChange = (player: 'x' | 'o', name: string) => {
+    setPlayerNames(prev => ({ ...prev, [player]: name }));
+    localStorage.setItem(`ticTacToePlayer${player.toUpperCase()}`, name);
   };
 
   return (
@@ -198,9 +206,40 @@ const TicTacToeGame = () => {
           onModeChange={handleGameModeChange}
         />
         
-        <p className="text-xl font-semibold text-white light:text-space-dark">
-          {getStatus()} {isXNext ? <Rocket className="inline-block w-5 h-5 text-neon-blue" /> : <Star className="inline-block w-5 h-5 text-neon-pink" />}
-        </p>
+        <div className="flex justify-between items-center mb-4">
+          <p className="text-xl font-semibold text-white light:text-space-dark">
+            {getStatus()} {isXNext ? <Rocket className="inline-block w-5 h-5 text-neon-blue" /> : <Star className="inline-block w-5 h-5 text-neon-pink" />}
+          </p>
+          
+          <NeonButton variant="outline" onClick={() => setEditingNames(!editingNames)}>
+            {editingNames ? 'Salvar Nomes' : 'Editar Nomes'}
+          </NeonButton>
+        </div>
+        
+        {editingNames && (
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <Label htmlFor="player-x">Jogador X</Label>
+              <Input 
+                id="player-x" 
+                value={playerNames.x} 
+                onChange={(e) => handleNameChange('x', e.target.value)}
+                className="bg-space-accent/50 dark:bg-space-accent/50 light:bg-white/80 text-white light:text-space-dark"
+              />
+            </div>
+            {gameMode !== 'ai' && (
+              <div>
+                <Label htmlFor="player-o">Jogador O</Label>
+                <Input 
+                  id="player-o" 
+                  value={playerNames.o} 
+                  onChange={(e) => handleNameChange('o', e.target.value)}
+                  className="bg-space-accent/50 dark:bg-space-accent/50 light:bg-white/80 text-white light:text-space-dark"
+                />
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="flex justify-center mb-6">

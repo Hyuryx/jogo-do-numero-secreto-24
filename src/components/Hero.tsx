@@ -1,7 +1,9 @@
+
 import React from 'react';
 import NeonButton from './NeonButton';
 import { Link as ScrollLink } from 'react-scroll';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Avatar, AvatarFallback } from './ui/avatar';
 
 const Hero = () => {
   const { theme } = useTheme();
@@ -74,8 +76,39 @@ const Hero = () => {
               <div className="absolute inset-0 bg-space-bg dark:bg-space-bg light:bg-gradient-to-br light:from-blue-50 light:to-purple-50 neon-border"></div>
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center p-8">
-                  <div className="text-8xl font-bold text-neon-blue mb-4">?</div>
-                  <div className="text-xl text-white light:text-space-dark">Qual é o número secreto?</div>
+                  {/* Universo futurístico com galáxia */}
+                  <div className="relative">
+                    <div className="absolute inset-0 rounded-full bg-neon-blue/20 animate-pulse-glow" style={{ animationDuration: '3s' }}></div>
+                    <div className="absolute inset-2 rounded-full bg-space-darker"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-8xl font-bold text-neon-blue animate-float" style={{ animationDuration: '4s' }}>?</div>
+                    </div>
+                    {/* Pequenos planetas/estrelas orbitando */}
+                    <div className="absolute w-3 h-3 bg-neon-purple rounded-full" 
+                      style={{
+                        top: '20%',
+                        left: '15%',
+                        boxShadow: '0 0 15px 5px rgba(155, 48, 255, 0.5)',
+                        animation: 'float 7s ease-in-out infinite'
+                      }}
+                    ></div>
+                    <div className="absolute w-2 h-2 bg-neon-pink rounded-full" 
+                      style={{
+                        bottom: '25%',
+                        right: '20%',
+                        boxShadow: '0 0 10px 3px rgba(255, 44, 223, 0.5)',
+                        animation: 'float 5s ease-in-out infinite reverse'
+                      }}
+                    ></div>
+                    {/* Anéis */}
+                    <div className="absolute inset-4 border-4 border-neon-blue/10 rounded-full"
+                      style={{transform: 'rotate(25deg)'}}
+                    ></div>
+                    <div className="absolute inset-8 border-2 border-neon-purple/10 rounded-full"
+                      style={{transform: 'rotate(-15deg)'}}
+                    ></div>
+                  </div>
+                  <div className="text-xl text-white light:text-space-dark mt-8">Qual é o número secreto?</div>
                 </div>
               </div>
             </div>
@@ -83,7 +116,25 @@ const Hero = () => {
               <div className="w-36 h-36 rounded-lg overflow-hidden border border-neon-blue/30">
                 <div className="absolute inset-0 bg-space-bg dark:bg-space-bg light:bg-gradient-to-br light:from-blue-50 light:to-purple-50 neon-border"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-5xl font-bold text-neon-purple">?</div>
+                  {/* Avatar futurista animado */}
+                  <div className="relative">
+                    <Avatar className="w-24 h-24 bg-space-darker border-2 border-neon-purple/40">
+                      <AvatarFallback className="bg-transparent">
+                        <div className="relative w-full h-full">
+                          {/* Rosto robótico */}
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="text-5xl font-bold text-neon-purple animate-pulse-glow" style={{ animationDuration: '2s' }}>?</div>
+                          </div>
+                          {/* Efeitos de luz */}
+                          <div className="absolute w-full h-1 bg-neon-blue/50 top-1/3 rounded-full animate-pulse-glow" style={{ animationDuration: '1.5s' }}></div>
+                          <div className="absolute w-full h-1 bg-neon-pink/50 bottom-1/3 rounded-full animate-pulse-glow" style={{ animationDuration: '2.2s' }}></div>
+                          {/* Círculos concêntricos animados */}
+                          <div className="absolute inset-1 rounded-full border border-neon-blue/20 animate-pulse-glow" style={{ animationDuration: '3s' }}></div>
+                          <div className="absolute inset-3 rounded-full border border-neon-purple/20 animate-pulse-glow" style={{ animationDuration: '4s' }}></div>
+                        </div>
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
                 </div>
               </div>
             </div>
