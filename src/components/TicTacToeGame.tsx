@@ -2,22 +2,21 @@
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import NeonButton from './NeonButton';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Rocket, Star } from 'lucide-react';
+import { Player, BoardState, GameMode, GameStats } from './tic-tac-toe/types';
+import { calculateWinner, findBestMove } from './tic-tac-toe/utils';
+import Board from './tic-tac-toe/Board';
+import GameStatsDisplay from './tic-tac-toe/GameStats';
+import SelectedLetters from './tic-tac-toe/SelectedLetters';
+import GameModeSelector from './tic-tac-toe/GameModeSelector';
 import { addSecretNumberAttempts } from './SecretNumberGame';
-import { Rocket, Star, Moon, Bot, User } from 'lucide-react';
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-
-type Player = 'X' | 'O' | null;
-type BoardState = Player[];
-type GameMode = 'player' | 'ai';
 
 const TicTacToeGame = () => {
   const { toast } = useToast();
   const [board, setBoard] = useState<BoardState>(Array(9).fill(null));
   const [isXNext, setIsXNext] = useState<boolean>(true);
   const [winner, setWinner] = useState<Player | 'draw' | null>(null);
-  const [gameStats, setGameStats] = useState({
+  const [gameStats, setGameStats] = useState<GameStats>({
     xWins: 0,
     oWins: 0,
     draws: 0,
@@ -53,90 +52,32 @@ const TicTacToeGame = () => {
   }, [isXNext, gameMode, winner, board]);
 
   // Salvar estatísticas no localStorage
-  const saveStats = (stats: typeof gameStats) => {
+  const saveStats = (stats: GameStats) => {
     setGameStats(stats);
     localStorage.setItem('ticTacToeStats', JSON.stringify(stats));
   };
 
-  // Função auxiliar para verificar se há um vencedor
-  const hasWinner = (squares: BoardState) => {
-    const lines = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
+  // Função para recompensar o jogador com tentativas aleatórias
+  const rewardSecretNumberAttempts = () => {
+    // Determina quantas tentativas o jogador ganha (1-3)
+    const random = Math.random();
+    let attempts = 1; // 85% de chance = 1 tentativa
     
-    for (let i = 0; i < lines.length; i++) {
-      const [a, b, c] = lines[i];
-      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-        return squares[a];
-      }
+    if (random > 0.85 && random <= 0.95) {
+      attempts = 2; // 10% de chance = 2 tentativas
+    } else if (random > 0.95) {
+      attempts = 3; // 5% de chance = 3 tentativas
     }
     
-    return null;
-  };
-
-  // Minimax algorithm
-  const minimax = (board: BoardState, depth: number, isMaximizing: boolean): number => {
-    // Terminal conditions
-    const winner = hasWinner(board);
+    // Adiciona as tentativas ao jogo do número secreto
+    const newAttempts = addSecretNumberAttempts(attempts);
     
-    if (winner === 'O') return 10 - depth;  // AI wins (O player)
-    if (winner === 'X') return depth - 10;  // Human wins (X player)
-    if (!board.includes(null)) return 0;   // Draw
-    
-    if (isMaximizing) {
-      let bestScore = -Infinity;
-      for (let i = 0; i < board.length; i++) {
-        if (board[i] === null) {
-          board[i] = 'O';
-          const score = minimax(board, depth + 1, false);
-          board[i] = null;
-          bestScore = Math.max(score, bestScore);
-        }
-      }
-      return bestScore;
-    } else {
-      let bestScore = Infinity;
-      for (let i = 0; i < board.length; i++) {
-        if (board[i] === null) {
-          board[i] = 'X';
-          const score = minimax(board, depth + 1, true);
-          board[i] = null;
-          bestScore = Math.min(score, bestScore);
-        }
-      }
-      return bestScore;
+    if (newAttempts > 0) {
+      toast({
+        title: "Recompensa!",
+        description: `Você ganhou +${attempts} tentativa${attempts > 1 ? 's' : ''} para o Jogo do Número Secreto!`,
+      });
     }
-  };
-
-  // Encontrar o melhor movimento para o AI usando o algoritmo minimax
-  const findBestMove = (currentBoard: BoardState): number => {
-    let bestScore = -Infinity;
-    let bestMove = 0;
-    
-    // For each available move
-    for (let i = 0; i < currentBoard.length; i++) {
-      if (currentBoard[i] === null) {
-        // Try the move
-        currentBoard[i] = 'O';
-        const score = minimax(currentBoard, 0, false);
-        currentBoard[i] = null;
-        
-        // Update best move if this is better
-        if (score > bestScore) {
-          bestScore = score;
-          bestMove = i;
-        }
-      }
-    }
-    
-    return bestMove;
   };
 
   const handleClick = (index: number) => {
@@ -216,29 +157,6 @@ const TicTacToeGame = () => {
       }
     }
   };
-  
-  // Função para recompensar o jogador com tentativas aleatórias
-  const rewardSecretNumberAttempts = () => {
-    // Determina quantas tentativas o jogador ganha (1-3)
-    const random = Math.random();
-    let attempts = 1; // 85% de chance = 1 tentativa
-    
-    if (random > 0.85 && random <= 0.95) {
-      attempts = 2; // 10% de chance = 2 tentativas
-    } else if (random > 0.95) {
-      attempts = 3; // 5% de chance = 3 tentativas
-    }
-    
-    // Adiciona as tentativas ao jogo do número secreto
-    const newAttempts = addSecretNumberAttempts(attempts);
-    
-    if (newAttempts > 0) {
-      toast({
-        title: "Recompensa!",
-        description: `Você ganhou +${attempts} tentativa${attempts > 1 ? 's' : ''} para o Jogo do Número Secreto!`,
-      });
-    }
-  };
 
   const resetGame = () => {
     setBoard(Array(9).fill(null));
@@ -249,32 +167,6 @@ const TicTacToeGame = () => {
       title: "Novo Jogo",
       description: "O tabuleiro foi reiniciado!",
     });
-  };
-
-  // Renderiza um ícone espacial para X ou O
-  const renderPlayerIcon = (player: Player) => {
-    if (player === 'X') {
-      return <Rocket className="w-7 h-7 md:w-10 md:h-10 text-neon-blue" />;
-    } else if (player === 'O') {
-      return <Star className="w-7 h-7 md:w-10 md:h-10 text-neon-pink" />;
-    }
-    return null;
-  };
-
-  const renderSquare = (index: number) => {
-    return (
-      <button
-        className={`aspect-square w-full flex items-center justify-center rounded border border-neon-purple/30 
-          ${!board[index] && !winner ? 'hover:bg-space-light/20' : ''} 
-          ${board[index] === 'X' ? 'text-neon-blue' : 'text-neon-pink'}
-          bg-space-accent/20`}
-        onClick={() => handleClick(index)}
-        disabled={!!winner || (gameMode === 'ai' && !isXNext)}
-        aria-label={`Square ${index}`}
-      >
-        {renderPlayerIcon(board[index])}
-      </button>
-    );
   };
 
   const getStatus = () => {
@@ -293,30 +185,18 @@ const TicTacToeGame = () => {
     }
   };
 
+  const handleGameModeChange = (mode: GameMode) => {
+    setGameMode(mode);
+    resetGame();
+  };
+
   return (
     <div className="space-y-6">
       <div className="mb-4">
-        <RadioGroup 
-          defaultValue={gameMode} 
-          className="flex space-x-4 mb-4"
-          onValueChange={(value) => {
-            setGameMode(value as GameMode);
-            resetGame();
-          }}
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="player" id="player" />
-            <Label htmlFor="player" className="flex items-center gap-1">
-              <User className="h-4 w-4" /> vs <User className="h-4 w-4" />
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="ai" id="ai" />
-            <Label htmlFor="ai" className="flex items-center gap-1">
-              <User className="h-4 w-4" /> vs <Bot className="h-4 w-4" />
-            </Label>
-          </div>
-        </RadioGroup>
+        <GameModeSelector 
+          gameMode={gameMode} 
+          onModeChange={handleGameModeChange}
+        />
         
         <p className="text-xl font-semibold text-white light:text-space-dark">
           {getStatus()} {isXNext ? <Rocket className="inline-block w-5 h-5 text-neon-blue" /> : <Star className="inline-block w-5 h-5 text-neon-pink" />}
@@ -324,85 +204,24 @@ const TicTacToeGame = () => {
       </div>
 
       <div className="flex justify-center mb-6">
-        {/* Tabuleiro com tamanho ajustado para ser médio e responsivo */}
-        <div className="grid grid-cols-3 gap-2 w-full max-w-[320px] md:max-w-[380px]">
-          {Array(9).fill(null).map((_, index) => (
-            <React.Fragment key={index}>
-              {renderSquare(index)}
-            </React.Fragment>
-          ))}
-        </div>
+        <Board 
+          board={board}
+          onClick={handleClick}
+          winner={winner}
+          isXNext={isXNext}
+          gameMode={gameMode}
+        />
       </div>
 
-      {/* Letras Selecionadas */}
-      <div className="mb-4">
-        <div className="text-sm text-gray-300 light:text-gray-700 mb-1">Selecionadas:</div>
-        <div className="flex flex-wrap gap-2">
-          {selectedLetters.map((letter, index) => (
-            <span 
-              key={index} 
-              className={`px-2 py-1 rounded text-xs ${letter === 'X' ? 'bg-neon-blue/20 text-neon-blue' : 'bg-neon-pink/20 text-neon-pink'}`}
-            >
-              {letter === 'X' ? <Rocket className="inline-block w-3 h-3 mr-1" /> : <Star className="inline-block w-3 h-3 mr-1" />}
-              {letter}
-            </span>
-          ))}
-          {selectedLetters.length === 0 && (
-            <span className="text-gray-500">Nenhuma jogada ainda</span>
-          )}
-        </div>
-      </div>
+      <SelectedLetters letters={selectedLetters} />
 
       <NeonButton onClick={resetGame} className="w-full">
         Reiniciar Jogo
       </NeonButton>
 
-      <Card className="bg-space-darker/80 dark:bg-space-darker/80 light:bg-white/90 border-neon-purple/20 mt-6">
-        <CardHeader>
-          <CardTitle className="text-xl text-neon-blue">Estatísticas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <p className="text-neon-blue text-xl font-bold">{gameStats.xWins}</p>
-              <p className="text-gray-300 light:text-gray-700">Vitórias <Rocket className="inline-block w-4 h-4" /></p>
-            </div>
-            <div>
-              <p className="text-neon-purple text-xl font-bold">{gameStats.draws}</p>
-              <p className="text-gray-300 light:text-gray-700">Empates</p>
-            </div>
-            <div>
-              <p className="text-neon-pink text-xl font-bold">{gameStats.oWins}</p>
-              <p className="text-gray-300 light:text-gray-700">Vitórias <Star className="inline-block w-4 h-4" /></p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <GameStatsDisplay stats={gameStats} />
     </div>
   );
-};
-
-// Função para calcular o vencedor
-const calculateWinner = (squares: BoardState) => {
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-  
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
-    }
-  }
-  
-  return null;
 };
 
 export default TicTacToeGame;
