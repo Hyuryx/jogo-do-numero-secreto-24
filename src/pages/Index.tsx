@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import Footer from '@/components/Footer';
@@ -12,11 +13,23 @@ import QuizGame from '@/components/QuizGame';
 import HangmanGame from '@/components/HangmanGame';
 import MemoryGame from '@/components/MemoryGame';
 import QuizShowGame from '@/components/QuizShowGame';
+import SudokuGame from '@/components/SudokuGame';
+import WordSearchGame from '@/components/WordSearchGame';
+import { ArrowRight } from 'lucide-react';
+import NeonButton from '@/components/NeonButton';
 
-type GameType = 'secretNumber' | 'ticTacToe' | 'quiz' | 'hangman' | 'memory' | 'quizShow';
+type GameType = 'secretNumber' | 'ticTacToe' | 'quiz' | 'hangman' | 'memory' | 'quizShow' | 'sudoku' | 'wordSearch';
 
 const Index = () => {
   const [selectedGame, setSelectedGame] = useState<GameType>('secretNumber');
+
+  // Carregar o jogo selecionado do localStorage ao montar o componente
+  useEffect(() => {
+    const savedGame = localStorage.getItem('selectedGame') as GameType;
+    if (savedGame) {
+      setSelectedGame(savedGame);
+    }
+  }, []);
 
   // Salvar o jogo selecionado no localStorage e disparar um evento personalizado
   useEffect(() => {
@@ -43,6 +56,10 @@ const Index = () => {
         return <MemoryGame />;
       case 'quizShow':
         return <QuizShowGame />;
+      case 'sudoku':
+        return <SudokuGame />;
+      case 'wordSearch':
+        return <WordSearchGame />;
       default:
         return <SecretNumberGame />;
     }
@@ -64,10 +81,19 @@ const Index = () => {
             <div className="container mx-auto px-4">
               <div className="space-card p-6 md:p-8 backdrop-blur-lg relative">
                 <div className="mb-6">
-                  <h2 className="text-3xl font-bold mb-4">
-                    <span className="text-gradient">ESCOLHA SEU JOGO</span>
-                  </h2>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+                    <h2 className="text-3xl font-bold">
+                      <span className="text-gradient">ESCOLHA SEU JOGO</span>
+                    </h2>
+                    
+                    <Link to="/games">
+                      <NeonButton variant="outline" size="sm" className="flex items-center gap-2">
+                        Ver todos os jogos <ArrowRight className="w-4 h-4" />
+                      </NeonButton>
+                    </Link>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <button 
                       onClick={() => setSelectedGame('secretNumber')} 
                       className={`p-3 rounded-lg border ${selectedGame === 'secretNumber' ? 'bg-neon-blue/20 border-neon-blue' : 'border-neon-purple/30 hover:bg-space-light/10'}`}
@@ -103,6 +129,18 @@ const Index = () => {
                       className={`p-3 rounded-lg border ${selectedGame === 'quizShow' ? 'bg-neon-blue/20 border-neon-blue' : 'border-neon-purple/30 hover:bg-space-light/10'}`}
                     >
                       <span className="text-white font-medium">Quiz Show</span>
+                    </button>
+                    <button 
+                      onClick={() => setSelectedGame('sudoku')} 
+                      className={`p-3 rounded-lg border ${selectedGame === 'sudoku' ? 'bg-neon-blue/20 border-neon-blue' : 'border-neon-purple/30 hover:bg-space-light/10'}`}
+                    >
+                      <span className="text-white font-medium">Sudoku</span>
+                    </button>
+                    <button 
+                      onClick={() => setSelectedGame('wordSearch')} 
+                      className={`p-3 rounded-lg border ${selectedGame === 'wordSearch' ? 'bg-neon-blue/20 border-neon-blue' : 'border-neon-purple/30 hover:bg-space-light/10'}`}
+                    >
+                      <span className="text-white font-medium">Caça-Palavras</span>
                     </button>
                   </div>
                 </div>

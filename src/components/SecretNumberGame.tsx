@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import NeonButton from './NeonButton';
@@ -36,25 +35,25 @@ export const addSecretNumberAttempts = (amount: number) => {
 const SecretNumberGame = () => {
   const { toast } = useToast();
   const [gameState, setGameState] = useState<GameState>({
-    secretNumber: Math.floor(Math.random() * 500) + 1,
+    secretNumber: Math.floor(Math.random() * 2000) + 1, // Aumentado para 2000
     attempts: 0,
     guessHistory: [],
     gameOver: false,
-    maxNumber: 500,
+    maxNumber: 2000, // Aumentado para 2000
     credits: 5,
     showCelebration: false,
     hintsUsed: 0,
-    lastHintRange: {min: 1, max: 500},
+    lastHintRange: {min: 1, max: 2000}, // Aumentado para 2000
     attemptLimit: 20 // Limite inicial de tentativas
   });
   const [currentGuess, setCurrentGuess] = useState<string>('');
-  const [message, setMessage] = useState<string>('Adivinhe o número entre 1 e 500');
+  const [message, setMessage] = useState<string>('Adivinhe o número entre 1 e 2000'); // Atualizado a mensagem
   const [highScores, setHighScores] = useState<{name: string, attempts: number}[]>([
-    { name: 'AI-X9', attempts: 4 },
-    { name: 'CyberNeon', attempts: 5 },
-    { name: 'Astro42', attempts: 6 },
-    { name: 'StarDust', attempts: 7 },
-    { name: 'GalacticX', attempts: 8 }
+    { name: 'AI-X9', attempts: 6 },
+    { name: 'CyberNeon', attempts: 7 },
+    { name: 'Astro42', attempts: 9 },
+    { name: 'StarDust', attempts: 11 },
+    { name: 'GalacticX', attempts: 12 }
   ]);
 
   // Frases de encorajamento para as dicas
@@ -165,15 +164,15 @@ const SecretNumberGame = () => {
   const resetGame = () => {
     setGameState(prev => ({
       ...prev,
-      secretNumber: Math.floor(Math.random() * 500) + 1,
+      secretNumber: Math.floor(Math.random() * 2000) + 1, // Aumentado para 2000
       attempts: 0,
       guessHistory: [],
       gameOver: false,
       showCelebration: false,
       hintsUsed: 0,
-      lastHintRange: {min: 1, max: 500}
+      lastHintRange: {min: 1, max: 2000} // Aumentado para 2000
     }));
-    setMessage('Adivinhe o número entre 1 e 500');
+    setMessage('Adivinhe o número entre 1 e 2000'); // Atualizado a mensagem
     setCurrentGuess('');
     toast({
       title: "Novo Jogo",
@@ -213,6 +212,7 @@ const SecretNumberGame = () => {
     });
   };
 
+  // Modificar a função useHint para tornar as dicas mais difíceis
   const useHint = () => {
     if (gameState.credits <= 0) {
       toast({
@@ -237,14 +237,15 @@ const SecretNumberGame = () => {
     const secretNum = gameState.secretNumber;
     const newHintsUsed = gameState.hintsUsed + 1;
     
-    // Quanto mais dicas usadas, menor o intervalo
-    const shrinkFactor = Math.min(0.9, 0.5 + (newHintsUsed * 0.05));
+    // Reduzir a eficácia das dicas para o jogo ser mais difícil
+    // Com o intervalo maior, as dicas reduzem menos o espaço de busca
+    const shrinkFactor = Math.min(0.8, 0.3 + (newHintsUsed * 0.03)); 
     
     // Use a última faixa de dicas como base para calcular a nova
     const lastMin = gameState.lastHintRange.min;
     const lastMax = gameState.lastHintRange.max;
     
-    // Calcula nova faixa, cada vez mais próxima do número secreto
+    // Calcula nova faixa, cada vez mais próxima do número secreto, mas menos eficaz
     let newMin = secretNum < lastMin 
       ? secretNum 
       : Math.floor(lastMin + (secretNum - lastMin) * (1 - shrinkFactor));
@@ -253,19 +254,32 @@ const SecretNumberGame = () => {
       ? secretNum 
       : Math.ceil(secretNum + (lastMax - secretNum) * shrinkFactor);
     
-    // Garante que o intervalo tem pelo menos 3 números (ou o número exato nas últimas dicas)
-    if (newMax - newMin < 3 && newHintsUsed < 8) {
+    // Garantir que o intervalo não fica muito pequeno nos estágios iniciais
+    // Para um intervalo de 1-2000, manter intervalos maiores
+    const minRange = Math.max(100, 2000 / Math.pow(2, newHintsUsed));
+    
+    if (newMax - newMin < minRange && newHintsUsed < 10) {
       if (secretNum - newMin < newMax - secretNum) {
-        newMax = Math.min(newMin + 3, gameState.maxNumber);
+        newMax = Math.min(newMin + minRange, gameState.maxNumber);
       } else {
-        newMin = Math.max(1, newMax - 3);
+        newMin = Math.max(1, newMax - minRange);
       }
     }
     
-    // Nas últimas dicas, reduz para o número exato
-    if (newHintsUsed >= 8) {
-      newMin = secretNum;
-      newMax = secretNum;
+    // Só depois de muitas dicas (10+) começamos a reduzir significativamente
+    if (newHintsUsed >= 10 && newHintsUsed < 15) {
+      const narrowRange = 50;
+      if (newMax - newMin > narrowRange) {
+        newMin = Math.max(1, secretNum - narrowRange/2);
+        newMax = Math.min(gameState.maxNumber, secretNum + narrowRange/2);
+      }
+    }
+    
+    // Nas últimas dicas (15+), reduz para um intervalo muito pequeno
+    if (newHintsUsed >= 15) {
+      const veryNarrowRange = 10;
+      newMin = Math.max(1, secretNum - veryNarrowRange/2);
+      newMax = Math.min(gameState.maxNumber, secretNum + veryNarrowRange/2);
     }
     
     // Seleciona uma mensagem de dica aleatória

@@ -4,10 +4,13 @@ import { useToast } from '@/hooks/use-toast';
 import NeonButton from './NeonButton';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { addSecretNumberAttempts } from './SecretNumberGame';
-import { Rocket, Star, Moon } from 'lucide-react';
+import { Rocket, Star, Moon, Bot, User } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 type Player = 'X' | 'O' | null;
 type BoardState = Player[];
+type GameMode = 'player' | 'ai';
 
 const TicTacToeGame = () => {
   const { toast } = useToast();
@@ -20,6 +23,7 @@ const TicTacToeGame = () => {
     draws: 0,
   });
   const [selectedLetters, setSelectedLetters] = useState<string[]>([]);
+  const [gameMode, setGameMode] = useState<GameMode>('player');
 
   // Carregar estatísticas do localStorage
   useEffect(() => {
@@ -29,15 +33,100 @@ const TicTacToeGame = () => {
     }
   }, []);
 
+  // Fazer o computador jogar quando for sua vez
+  useEffect(() => {
+    if (gameMode === 'ai' && !isXNext && !winner) {
+      // Pequeno atraso para simular "pensamento" do computador
+      const timerId = setTimeout(() => {
+        makeAIMove();
+      }, 700);
+      
+      return () => clearTimeout(timerId);
+    }
+  }, [isXNext, gameMode, winner]);
+
   // Salvar estatísticas no localStorage
   const saveStats = (stats: typeof gameStats) => {
     setGameStats(stats);
     localStorage.setItem('ticTacToeStats', JSON.stringify(stats));
   };
 
+  const makeAIMove = () => {
+    // Verificar se já há um vencedor ou empate
+    if (winner || board.every(square => square !== null)) {
+      return;
+    }
+    
+    // Estratégia do AI
+    let move = findBestMove(board);
+    
+    // Fazer a jogada
+    handleClick(move);
+  };
+
+  // Encontrar o melhor movimento para o AI usando o algoritmo minimax
+  const findBestMove = (currentBoard: BoardState): number => {
+    // Primeiro, verificar se há um movimento vencedor
+    for (let i = 0; i < 9; i++) {
+      if (currentBoard[i] === null) {
+        // Tentar o movimento
+        const newBoard = [...currentBoard];
+        newBoard[i] = 'O';
+        
+        // Ver se é uma jogada vencedora
+        if (calculateWinner(newBoard) === 'O') {
+          return i;
+        }
+      }
+    }
+    
+    // Segundo, bloquear movimento vencedor do adversário
+    for (let i = 0; i < 9; i++) {
+      if (currentBoard[i] === null) {
+        // Simular jogada do adversário
+        const newBoard = [...currentBoard];
+        newBoard[i] = 'X';
+        
+        // Ver se seria uma jogada vencedora para o adversário
+        if (calculateWinner(newBoard) === 'X') {
+          return i;
+        }
+      }
+    }
+    
+    // Terceiro, tentar pegar o centro
+    if (currentBoard[4] === null) {
+      return 4;
+    }
+    
+    // Quarto, tentar pegar cantos
+    const corners = [0, 2, 6, 8];
+    const availableCorners = corners.filter(corner => currentBoard[corner] === null);
+    if (availableCorners.length > 0) {
+      return availableCorners[Math.floor(Math.random() * availableCorners.length)];
+    }
+    
+    // Por último, pegar qualquer posição disponível
+    const availableMoves = currentBoard
+      .map((square, index) => square === null ? index : -1)
+      .filter(index => index !== -1);
+      
+    if (availableMoves.length > 0) {
+      return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+    }
+    
+    // Caso não tenha movimentos disponíveis (não deveria acontecer)
+    return 0;
+  };
+
   const handleClick = (index: number) => {
     // Ignorar clique se o espaço estiver ocupado ou jogo finalizado
     if (board[index] || winner) {
+      return;
+    }
+    
+    // Ignorar clique se for a vez do AI
+    if (gameMode === 'ai' && !isXNext) {
       return;
     }
 
@@ -71,12 +160,14 @@ const TicTacToeGame = () => {
       } else {
         newStats.oWins += 1;
         
-        // Adicionar tentativas aleatórias ao jogo do número secreto (1-3)
-        rewardSecretNumberAttempts();
+        // No modo AI, só damos recompensa se o jogador humano ganhar
+        if (!(gameMode === 'ai' && gameWinner === 'O')) {
+          rewardSecretNumberAttempts();
+        }
         
         toast({
-          title: "Jogador O venceu!",
-          description: "Parabéns pela vitória!",
+          title: gameMode === 'ai' ? "Computador venceu!" : "Jogador O venceu!",
+          description: gameMode === 'ai' ? "Tente novamente!" : "Parabéns pela vitória!",
         });
       }
       saveStats(newStats);
@@ -158,7 +249,7 @@ const TicTacToeGame = () => {
           ${board[index] === 'X' ? 'text-neon-blue' : 'text-neon-pink'}
           bg-space-accent/20`}
         onClick={() => handleClick(index)}
-        disabled={!!winner}
+        disabled={!!winner || (gameMode === 'ai' && !isXNext)}
         aria-label={`Square ${index}`}
       >
         {renderPlayerIcon(board[index])}
@@ -170,8 +261,14 @@ const TicTacToeGame = () => {
     if (winner === 'draw') {
       return 'Empate!';
     } else if (winner) {
+      if (gameMode === 'ai' && winner === 'O') {
+        return 'Computador venceu!';
+      }
       return `Vencedor: ${winner}`;
     } else {
+      if (gameMode === 'ai' && !isXNext) {
+        return 'Turno do Computador';
+      }
       return `Próximo jogador: ${isXNext ? 'X' : 'O'}`;
     }
   };
@@ -179,6 +276,28 @@ const TicTacToeGame = () => {
   return (
     <div className="space-y-6">
       <div className="mb-4">
+        <RadioGroup 
+          defaultValue={gameMode} 
+          className="flex space-x-4 mb-4"
+          onValueChange={(value) => {
+            setGameMode(value as GameMode);
+            resetGame();
+          }}
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="player" id="player" />
+            <Label htmlFor="player" className="flex items-center gap-1">
+              <User className="h-4 w-4" /> vs <User className="h-4 w-4" />
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="ai" id="ai" />
+            <Label htmlFor="ai" className="flex items-center gap-1">
+              <User className="h-4 w-4" /> vs <Bot className="h-4 w-4" />
+            </Label>
+          </div>
+        </RadioGroup>
+        
         <p className="text-xl font-semibold text-white light:text-space-dark">
           {getStatus()} {isXNext ? <Rocket className="inline-block w-5 h-5 text-neon-blue" /> : <Star className="inline-block w-5 h-5 text-neon-pink" />}
         </p>
