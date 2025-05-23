@@ -38,12 +38,19 @@ const TicTacToeGame = () => {
     if (gameMode === 'ai' && !isXNext && !winner) {
       // Pequeno atraso para simular "pensamento" do computador
       const timerId = setTimeout(() => {
-        makeAIMove();
+        const availableSquares = board
+          .map((square, index) => square === null ? index : -1)
+          .filter(index => index !== -1);
+          
+        if (availableSquares.length > 0) {
+          const bestMove = findBestMove([...board]);
+          handleClick(bestMove);
+        }
       }, 700);
       
       return () => clearTimeout(timerId);
     }
-  }, [isXNext, gameMode, winner]);
+  }, [isXNext, gameMode, winner, board]);
 
   // Salvar estatísticas no localStorage
   const saveStats = (stats: typeof gameStats) => {
@@ -51,72 +58,85 @@ const TicTacToeGame = () => {
     localStorage.setItem('ticTacToeStats', JSON.stringify(stats));
   };
 
-  const makeAIMove = () => {
-    // Verificar se já há um vencedor ou empate
-    if (winner || board.every(square => square !== null)) {
-      return;
+  // Função auxiliar para verificar se há um vencedor
+  const hasWinner = (squares: BoardState) => {
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+    
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+        return squares[a];
+      }
     }
     
-    // Estratégia do AI
-    let move = findBestMove(board);
+    return null;
+  };
+
+  // Minimax algorithm
+  const minimax = (board: BoardState, depth: number, isMaximizing: boolean): number => {
+    // Terminal conditions
+    const winner = hasWinner(board);
     
-    // Fazer a jogada
-    handleClick(move);
+    if (winner === 'O') return 10 - depth;  // AI wins (O player)
+    if (winner === 'X') return depth - 10;  // Human wins (X player)
+    if (!board.includes(null)) return 0;   // Draw
+    
+    if (isMaximizing) {
+      let bestScore = -Infinity;
+      for (let i = 0; i < board.length; i++) {
+        if (board[i] === null) {
+          board[i] = 'O';
+          const score = minimax(board, depth + 1, false);
+          board[i] = null;
+          bestScore = Math.max(score, bestScore);
+        }
+      }
+      return bestScore;
+    } else {
+      let bestScore = Infinity;
+      for (let i = 0; i < board.length; i++) {
+        if (board[i] === null) {
+          board[i] = 'X';
+          const score = minimax(board, depth + 1, true);
+          board[i] = null;
+          bestScore = Math.min(score, bestScore);
+        }
+      }
+      return bestScore;
+    }
   };
 
   // Encontrar o melhor movimento para o AI usando o algoritmo minimax
   const findBestMove = (currentBoard: BoardState): number => {
-    // Primeiro, verificar se há um movimento vencedor
-    for (let i = 0; i < 9; i++) {
+    let bestScore = -Infinity;
+    let bestMove = 0;
+    
+    // For each available move
+    for (let i = 0; i < currentBoard.length; i++) {
       if (currentBoard[i] === null) {
-        // Tentar o movimento
-        const newBoard = [...currentBoard];
-        newBoard[i] = 'O';
+        // Try the move
+        currentBoard[i] = 'O';
+        const score = minimax(currentBoard, 0, false);
+        currentBoard[i] = null;
         
-        // Ver se é uma jogada vencedora
-        if (calculateWinner(newBoard) === 'O') {
-          return i;
+        // Update best move if this is better
+        if (score > bestScore) {
+          bestScore = score;
+          bestMove = i;
         }
       }
     }
     
-    // Segundo, bloquear movimento vencedor do adversário
-    for (let i = 0; i < 9; i++) {
-      if (currentBoard[i] === null) {
-        // Simular jogada do adversário
-        const newBoard = [...currentBoard];
-        newBoard[i] = 'X';
-        
-        // Ver se seria uma jogada vencedora para o adversário
-        if (calculateWinner(newBoard) === 'X') {
-          return i;
-        }
-      }
-    }
-    
-    // Terceiro, tentar pegar o centro
-    if (currentBoard[4] === null) {
-      return 4;
-    }
-    
-    // Quarto, tentar pegar cantos
-    const corners = [0, 2, 6, 8];
-    const availableCorners = corners.filter(corner => currentBoard[corner] === null);
-    if (availableCorners.length > 0) {
-      return availableCorners[Math.floor(Math.random() * availableCorners.length)];
-    }
-    
-    // Por último, pegar qualquer posição disponível
-    const availableMoves = currentBoard
-      .map((square, index) => square === null ? index : -1)
-      .filter(index => index !== -1);
-      
-    if (availableMoves.length > 0) {
-      return availableMoves[Math.floor(Math.random() * availableMoves.length)];
-    }
-    
-    // Caso não tenha movimentos disponíveis (não deveria acontecer)
-    return 0;
+    return bestMove;
   };
 
   const handleClick = (index: number) => {
